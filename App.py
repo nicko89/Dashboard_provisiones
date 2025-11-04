@@ -13,7 +13,7 @@ def cargar_datos():
 
 df = cargar_datos()
 
-# ===== FILTRO SOLO 2024 Y 2025 (si quieres incluir 2025) =====
+# ===== FILTRO SOLO 2024 Y 2025 =====
 df = df[df['Fecha'].dt.year.isin([2024, 2025])]
 
 # ===== CÁLCULO DE PROVISIONES =====
@@ -45,11 +45,35 @@ df['Provision >360'] = df['> 360']
 df['Total Provision'] = df[['Provision 91-180','Provision 181-270','Provision 271-360','Provision >360']].sum(axis=1)
 
 # ===== DETECTAR ÚLTIMO MES Y MES ANTERIOR =====
-ultimo_mes_fecha = df['Fecha'].max()
-ultimo_mes = pd.Period(ultimo_mes_fecha, freq='M')
+df['AñoMes'] = df['Fecha'].dt.to_period('M')
+meses_ordenados = df['AñoMes'].sort_values().unique()
+ultimo_mes = meses_ordenados[-1]
+mes_anterior = meses_ordenados[-2]
 
-mes_anterior_fecha = df[df['Fecha'] < ultimo_mes_fecha]['Fecha'].max()
-mes_anterior = pd.Period(mes_anterior_fecha, freq='M')
+# ===== MÉTRICAS =====
+total_actual = df[df['AñoMes'] == ultimo_mes]['Total Provision'].sum()
+total_anterior = df[df['AñoMes'] == mes_anterior]['Total Provision'].sum()
+diferencia = total_actual - total_anterior
+porcentaje = (diferencia / total_anterior * 100) if total_anterior != 0 else 0
+
+col1, col2, col3 = st.columns(3)
+col1.metric("Mes actual", str(ultimo_mes))
+col2.metric("Total Provision Mes Actual", f"${total_actual:,.2f}")
+col3.metric("Total Provision Mes Anterior", f"${total_anterior:,.2f}", f"{porcentaje:.2f}%")
+
+# ===== TABLA SOLO ÚLTIMO MES =====
+df_ultimo_mes = df[df['AñoMes'] == ultimo_mes].copy()
+df_ultimo_mes['Fecha'] = df_ultimo_mes['Fecha'].dt.strftime('%m/%d/%Y')  # Formato MM/DD/YYYY
+
+columnas_finales = [
+    'Fecha', 'Infor Code', 'Customer', 'Current', '1 - 90', '91 - 180', '181 - 270',
+    '271-360', '> 360', 'TOTAL',
+    'Provision 91-180', 'Provision 181-270', 'Provision 271-360', 'Provision >360', 'Total Provision'
+]
+
+st.subheader(f"Datos del último mes ({ultimo_mes})")
+st.dataframe(df_ultimo_mes[columnas_finales])
+
 
 # ===== MÉTRICAS =====
 total_actual = df[df['Fecha'].dt.to_period('M') == ultimo_mes]['Total Provision'].sum()
