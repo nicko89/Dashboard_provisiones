@@ -73,27 +73,3 @@ columnas_finales = [
 
 st.subheader(f"Datos del último mes ({ultimo_mes})")
 st.dataframe(df_ultimo_mes[columnas_finales])
-
-
-# ===== MÉTRICAS =====
-total_actual = df[df['Fecha'].dt.to_period('M') == ultimo_mes]['Total Provision'].sum()
-total_anterior = df[df['Fecha'].dt.to_period('M') == mes_anterior]['Total Provision'].sum()
-diferencia = total_actual - total_anterior
-porcentaje = (diferencia / total_anterior * 100) if total_anterior != 0 else 0
-
-col1, col2, col3 = st.columns(3)
-col1.metric("Mes actual", str(ultimo_mes))
-col2.metric("Total Provision Mes Actual", f"${total_actual:,.2f}")
-col3.metric("Cambio vs mes anterior", f"${diferencia:,.2f}", f"{porcentaje:.2f}%")
-
-# ===== TABLA SOLO ÚLTIMO MES =====
-df_ultimo_mes = df[df['Fecha'].dt.to_period('M') == ultimo_mes]
-
-columnas_finales = [
-    'Fecha', 'Infor Code', 'Customer', 'Current', '1 - 90', '91 - 180', '181 - 270',
-    '271-360', '> 360', 'TOTAL',
-    'Provision 91-180', 'Provision 181-270', 'Provision 271-360', 'Provision >360', 'Total Provision'
-]
-
-st.subheader(f"Datos del último mes ({ultimo_mes})")
-st.dataframe(df_ultimo_mes[columnas_finales])
