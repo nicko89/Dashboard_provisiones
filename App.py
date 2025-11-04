@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import plotly.express as px
 
 # ===== CONFIGURACIÓN DE LA PÁGINA =====
 st.set_page_config(page_title="Provision Cartera USA", layout="wide")
@@ -16,32 +17,28 @@ df = cargar_datos()
 # ===== FILTRO SOLO 2024 Y 2025 =====
 df = df[df['Fecha'].dt.year.isin([2024, 2025])]
 
-# ===== CÁLCULO DE PROVISIONES =====
-# Provision 91 a 180
+# ===== CÁLCULO DE PROVISIONES CON CONDICIÓN > 0 =====
 def provision_91_180(row):
-    if row.get('TipoCliente', '') == 'INT':
+    saldo = row.get('91 - 180', 0)
+    if row.get('TipoCliente', '') == 'INT' or saldo <= 0:
         return 0
-    if row['Fecha'].year == 2024 and row['91 - 180'] > 0:
-        return row['91 - 180'] * 0.20
-    elif row['Fecha'].year == 2025 and row['91 - 180'] > 0:
-        return row['91 - 180'] * 0.03
-    else:
-        return 0
+    if row['Fecha'].year == 2024:
+        return saldo * 0.20
+    elif row['Fecha'].year == 2025:
+        return saldo * 0.03
+    return 0
 
 df['Provision 91-180'] = df.apply(provision_91_180, axis=1)
+df['Provision 181-270'] = df['181 - 270'].apply(lambda x: x*0.50 if x>0 else 0)
 
-# Provision 181 a 270 - 50% ambos años
-df['Provision 181-270'] = df['181 - 270'] * 0.50
-
-# Provision 271 a 360 - 50% 2024, 100% 2025
 def provision_271_360(row):
-    return row['271-360'] * (0.50 if row['Fecha'].year == 2024 else 1.0)
+    saldo = row.get('271-360', 0)
+    if saldo <= 0:
+        return 0
+    return saldo * (0.50 if row['Fecha'].year == 2024 else 1.0)
+
 df['Provision 271-360'] = df.apply(provision_271_360, axis=1)
-
-# Provision > 360 - 100% ambos años
-df['Provision >360'] = df['> 360']
-
-# Total Provision
+df['Provision >360'] = df['> 360'].apply(lambda x: x if x>0 else 0)
 df['Total Provision'] = df[['Provision 91-180','Provision 181-270','Provision 271-360','Provision >360']].sum(axis=1)
 
 # ===== DETECTAR ÚLTIMO MES Y MES ANTERIOR =====
@@ -63,7 +60,7 @@ col3.metric("Total Provision Mes Anterior", f"${total_anterior:,.2f}", f"{porcen
 
 # ===== TABLA SOLO ÚLTIMO MES =====
 df_ultimo_mes = df[df['AñoMes'] == ultimo_mes].copy()
-df_ultimo_mes['Fecha'] = df_ultimo_mes['Fecha'].dt.strftime('%m/%d/%Y')  # Formato MM/DD/YYYY
+df_ultimo_mes['Fecha'] = df_ultimo_mes['Fecha'].dt.strftime('%m/%d/%Y')
 
 columnas_finales = [
     'Fecha', 'Infor Code', 'Customer', 'Current', '1 - 90', '91 - 180', '181 - 270',
@@ -73,3 +70,28 @@ columnas_finales = [
 
 st.subheader(f"Datos del último mes ({ultimo_mes})")
 st.dataframe(df_ultimo_mes[columnas_finales])
+
+# ===== GRÁFICO 1: Distribución de Provisión por Rango (Último Mes) =====
+df_graf1 = df_ultimo_mes.melt(
+    id_vars=['Customer'], 
+    value_vars=['Provision 91-180', 'Provision 181-270', 'Provision 271-360', 'Provision >360'],
+    var_name='Rango', value_name='Provision'
+)
+
+fig1 = px.bar(
+    df_graf1, x='Customer', y='Provision', color='Rango',
+    title=f"Distribución de Provisión por Rango - {ultimo_mes}", 
+    text='Provision'
+)
+fig1.update_layout(barmode='stack', xaxis={'categoryorder':'total descending'})
+st.plotly_chart(fig1, use_container_width=True)
+
+# ===== GRÁFICO 2: Evolución Total Provision por Mes =====
+df_evolucion = df.groupby('AñoMes')['Total Provision'].sum().reset_index()
+df_evolucion['AñoMes'] = df_evolucion['AñoMes'].astype(str)
+
+fig2 = px.line(
+    df_evolucion, x='AñoMes', y='Total Provision', markers=True,
+    title="Evolución de Total Provision por Mes"
+)
+st.plotly_chart(fig2, use_container_width=True)
