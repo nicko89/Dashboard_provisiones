@@ -46,7 +46,7 @@ st.markdown("---")
 @st.cache_data
 def cargar_datos():
     df_base = pd.read_excel("Data/Base Provision.xlsx")
-    df_write = pd.read_excel("Data/Base Provision.xlsx", sheet_name="Write offs")
+    df_write = pd.read_excel("Data/Base Provision.xlsx", sheet_name="Write off")
 
     # Normalizar nombres de columnas y fechas
     df_base.columns = df_base.columns.str.strip()
