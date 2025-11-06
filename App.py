@@ -12,7 +12,7 @@ st.set_page_config(page_title="Provision Cartera USA", layout="wide")
 st.markdown("""
     <style>
     [data-testid="stAppViewContainer"] {
-        background: url("assets/fondo_corporativo.png");
+        background: url("assets/Fondo.jpg");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
