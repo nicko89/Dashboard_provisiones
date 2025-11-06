@@ -3,10 +3,32 @@ import streamlit as st
 import plotly.express as px
 from dateutil.relativedelta import relativedelta
 
-# ===== CONFIGURACIÓN DE LA PÁGINA =====
+# ==========================================================
+# CONFIGURACIÓN DE LA PÁGINA
+# ==========================================================
 st.set_page_config(page_title="Provision Cartera USA", layout="wide")
 
-# ===== ENCABEZADO CON LOGO =====
+# ===== FONDO CORPORATIVO =====
+st.markdown("""
+    <style>
+    [data-testid="stAppViewContainer"] {
+        background: url("assets/fondo_corporativo.png");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+    [data-testid="stHeader"] {
+        background: rgba(255, 255, 255, 0.7);
+    }
+    [data-testid="stSidebar"] {
+        background: rgba(255, 255, 255, 0.9);
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# ==========================================================
+# ENCABEZADO CON LOGO Y TÍTULO
+# ==========================================================
 col1, col2 = st.columns([1, 5])
 with col1:
     st.image("assets/Logo.png", width=210)
@@ -18,20 +40,32 @@ with col2:
 
 st.markdown("---")
 
-# ===== CARGA DE DATOS =====
+# ==========================================================
+# CARGA DE DATOS
+# ==========================================================
 @st.cache_data
 def cargar_datos():
-    df = pd.read_excel("Data/Base Provision.xlsx")
-    df.columns = df.columns.str.strip()
-    df['Fecha'] = pd.to_datetime(df['Fecha'])
-    return df
+    df_base = pd.read_excel("Data/Base Provision.xlsx")
+    df_write = pd.read_excel("Data/Base Provision.xlsx", sheet_name="Write offs")
 
-df = cargar_datos()
+    # Normalizar nombres de columnas y fechas
+    df_base.columns = df_base.columns.str.strip()
+    df_write.columns = df_write.columns.str.strip()
+    df_base['Fecha'] = pd.to_datetime(df_base['Fecha'])
+    df_write['Date'] = pd.to_datetime(df_write['Date'])
 
-# ===== FILTRO SOLO 2024 Y 2025 =====
+    return df_base, df_write
+
+df, df_write = cargar_datos()
+
+# ==========================================================
+# FILTRO DE AÑOS (solo 2024 y 2025)
+# ==========================================================
 df = df[df['Fecha'].dt.year.isin([2024, 2025])].copy()
 
-# ===== CLASIFICACIÓN DE CLIENTES =====
+# ==========================================================
+# CLASIFICACIÓN DE CLIENTES
+# ==========================================================
 def tipo_cliente(code):
     if str(code).startswith(("INT", "SH")) or code in [
         "NAC1617", "NAC0986", "NAC0987", "NAC1312",
@@ -43,7 +77,9 @@ def tipo_cliente(code):
 df['TipoCliente'] = df['Infor Code'].apply(tipo_cliente)
 df = df[df['TipoCliente'] != "INT"].copy()
 
-# ===== CÁLCULO DE PROVISIONES =====
+# ==========================================================
+# CÁLCULO DE PROVISIONES
+# ==========================================================
 def provision_91_180(row):
     saldo = row.get('91 - 180', 0)
     if saldo <= 0:
@@ -71,58 +107,97 @@ df['Provision >360'] = df.apply(provision_mayor_360, axis=1)
 df['Total Provision'] = df[['Provision 91-180', 'Provision 181-270',
                             'Provision 271-360', 'Provision >360']].sum(axis=1)
 
-# ===== CAMPOS TEMPORALES =====
+# ==========================================================
+# CAMPOS TEMPORALES
+# ==========================================================
 df['Año'] = df['Fecha'].dt.year
 df['Mes'] = df['Fecha'].dt.month
 df['AñoMes'] = df['Fecha'].dt.to_period('M')
 df['AñoMes_str'] = df['AñoMes'].astype(str)
 
-# ===== FILTROS =====
+# ==========================================================
+# SIDEBAR: FILTROS
+# ==========================================================
 st.sidebar.header("🗓️ Filtros de Periodo")
 año_sel = st.sidebar.selectbox("Seleccionar año:", sorted(df['Año'].unique(), reverse=True))
 meses_disponibles = sorted(df[df['Año'] == año_sel]['Mes'].unique())
 mes_sel = st.sidebar.selectbox("Seleccionar mes:", meses_disponibles)
 
-# ===== BUSCADOR UNIFICADO =====
+# ==========================================================
+# BUSCADOR CON BOTÓN DE LIMPIEZA
+# ==========================================================
 st.sidebar.header("🔍 Buscador")
-busqueda = st.sidebar.text_input("Buscar Cliente o Infor Code:")
 
+if "busqueda" not in st.session_state:
+    st.session_state.busqueda = ""
+
+def limpiar_busqueda():
+    st.session_state.busqueda = ""
+
+busqueda = st.sidebar.text_input("Buscar Cliente o Infor Code:", st.session_state.busqueda, key="busqueda")
+st.sidebar.button("🧹 Limpiar búsqueda", on_click=limpiar_busqueda)
+
+# ==========================================================
+# FILTRO PRINCIPAL
+# ==========================================================
 df_filtrado = df[(df['Año'] == año_sel) & (df['Mes'] == mes_sel)].copy()
-
-if busqueda:
+if st.session_state.busqueda:
     df_filtrado = df_filtrado[
-        df_filtrado['Customer'].str.contains(busqueda, case=False, na=False) |
-        df_filtrado['Infor Code'].str.contains(busqueda, case=False, na=False)
+        df_filtrado['Customer'].str.contains(st.session_state.busqueda, case=False, na=False) |
+        df_filtrado['Infor Code'].str.contains(st.session_state.busqueda, case=False, na=False)
     ]
 
-# ===== MES ANTERIOR (filtrado también) =====
+# ==========================================================
+# MES ANTERIOR
+# ==========================================================
 fecha_sel = pd.Timestamp(año_sel, mes_sel, 1)
 fecha_ant = fecha_sel - relativedelta(months=1)
 df_mes_ant = df[(df['Fecha'].dt.year == fecha_ant.year) & (df['Fecha'].dt.month == fecha_ant.month)].copy()
 
-if busqueda:
+if st.session_state.busqueda:
     df_mes_ant = df_mes_ant[
-        df_mes_ant['Customer'].str.contains(busqueda, case=False, na=False) |
-        df_mes_ant['Infor Code'].str.contains(busqueda, case=False, na=False)
+        df_mes_ant['Customer'].str.contains(st.session_state.busqueda, case=False, na=False) |
+        df_mes_ant['Infor Code'].str.contains(st.session_state.busqueda, case=False, na=False)
     ]
 
-# ===== MÉTRICAS =====
+# ==========================================================
+# MÉTRICAS DE PROVISIONES
+# ==========================================================
 total_actual = df_filtrado['Total Provision'].sum()
 total_anterior = df_mes_ant['Total Provision'].sum() if not df_mes_ant.empty else 0
 variacion_abs = total_actual - total_anterior
 variacion_pct = (variacion_abs / total_anterior * 100) if total_anterior != 0 else 0
 
-# ===== TARJETAS DE MÉTRICAS =====
-c1, c2, c3, c4, c5 = st.columns(5)
+# ==========================================================
+# CÁLCULO DE WRITE OFFS (EQUIVALENTE DAX)
+# ==========================================================
+df_write = df_write[df_write['Cust/Vendor'].notna()]
+df_write = df_write[~df_write['Cust/Vendor'].str.startswith("INT")]
+df_write['Año'] = df_write['Date'].dt.year
+df_write['Mes'] = df_write['Date'].dt.month
+
+writeoffs_mes = df_write[
+    (df_write['Año'] == año_sel) & (df_write['Mes'] == mes_sel)
+]['Amount'].sum()
+
+writeoffs_texto = "Sin Write offs" if writeoffs_mes == 0 else f"${writeoffs_mes:,.2f}"
+
+# ==========================================================
+# TARJETAS DE MÉTRICAS
+# ==========================================================
+c1, c2, c3, c4, c5, c6 = st.columns(6)
 c1.metric("🗓 Año", año_sel)
 c2.metric("📆 Mes seleccionado", mes_sel)
 c3.metric("💰 Total mes anterior", f"${total_anterior:,.2f}")
 c4.metric("💰 Total mes actual", f"${total_actual:,.2f}")
 c5.metric("📈 Variación %", f"{variacion_pct:.2f}%")
+c6.metric("💸 Write Offs", writeoffs_texto)
 
 st.markdown("---")
 
-# ===== TABLA DE CLIENTES =====
+# ==========================================================
+# TABLA DE CLIENTES
+# ==========================================================
 st.subheader(f"📋 Total de Provisiones - {año_sel}-{mes_sel:02d}")
 df_tabla = df_filtrado.groupby(['Infor Code', 'Customer'], as_index=False)['Total Provision'].sum()
 df_tabla['% del Total'] = (df_tabla['Total Provision'] / df_tabla['Total Provision'].sum()) * 100
@@ -134,34 +209,29 @@ st.dataframe(
     })
 )
 
-# ===== EVOLUCIÓN DE LOS ÚLTIMOS 5 MESES (CORREGIDO: MENSUAL, LÍNEA MÁS GRUESA, GRID PUNTEADO) =====
+# ==========================================================
+# EVOLUCIÓN ÚLTIMOS 5 MESES
+# ==========================================================
 periodo_sel = pd.Period(fecha_sel, freq='M')
 ultimos_5 = [periodo_sel - i for i in range(4, -1, -1)]
-
-# Filtrar los 5 periodos de interés
 df_ultimos_5 = df[df['AñoMes'].isin(ultimos_5)].copy()
 
-# Si hay búsqueda (cliente/infor code), aplicar el filtro también aquí
-if busqueda:
+if st.session_state.busqueda:
     df_ultimos_5 = df_ultimos_5[
-        df_ultimos_5['Customer'].str.contains(busqueda, case=False, na=False) |
-        df_ultimos_5['Infor Code'].str.contains(busqueda, case=False, na=False)
+        df_ultimos_5['Customer'].str.contains(st.session_state.busqueda, case=False, na=False) |
+        df_ultimos_5['Infor Code'].str.contains(st.session_state.busqueda, case=False, na=False)
     ]
 
-# Agrupar por periodo (asegurando orden cronológico) y crear etiqueta bonita para el eje X
 df_agrupado = (
     df_ultimos_5
     .groupby('AñoMes', as_index=False)['Total Provision']
     .sum()
     .sort_values('AñoMes')
 )
-# Etiqueta tipo "Jul 2024"
 df_agrupado['AñoMes_label'] = df_agrupado['AñoMes'].dt.to_timestamp().dt.strftime('%b %Y')
 
-# Escala adaptativa: sin búsqueda -> 200k, con búsqueda -> 50k
-y_max = 50000 if busqueda else 200000
+y_max = 50000 if st.session_state.busqueda else 200000
 
-# Crear figura
 fig_linea = px.line(
     df_agrupado,
     x='AñoMes_label',
@@ -170,44 +240,23 @@ fig_linea = px.line(
     title="Evolución mensual de la Provisión Total",
     color_discrete_sequence=['#0072B2']
 )
-
-# Grosor de línea
 fig_linea.update_traces(line=dict(width=4), marker=dict(size=8))
-
-# Eje Y: rango fijo adaptativo, ticks cada 25k (visualmente agradable)
-fig_linea.update_yaxes(
-    range=[100000, y_max],
-    tick0=100000,
-    dtick=50000,              # líneas y ticks cada 25k
-    tickformat=",",           # formato numérico con separador de miles
-    showgrid=True,
-    gridwidth=1,
-    gridcolor="rgba(200,200,200,0.35)",   # gris suave
-    griddash="dash"
-)
-
-# Eje X: etiquetas mensuales
-fig_linea.update_xaxes(
-    title_text="Mes",
-    tickmode='array',
-    tickvals=df_agrupado['AñoMes_label'],
-    ticktext=df_agrupado['AñoMes_label'],
-    showgrid=False
-)
-
-# Layout general (tema oscuro/ligero si quieres)
-fig_linea.update_layout(
-    yaxis_title="Total Provision ($)",
-    xaxis_title="Mes",
-    template="plotly_white",
-    margin=dict(l=40, r=20, t=60, b=40),
-    title_x=0.02
-)
+fig_linea.update_yaxes(range=[100000, y_max], tick0=100000, dtick=50000,
+                       tickformat=",", showgrid=True, gridwidth=1,
+                       gridcolor="rgba(200,200,200,0.35)", griddash="dash")
+fig_linea.update_xaxes(title_text="Mes", showgrid=False)
+fig_linea.update_layout(yaxis_title="Total Provision ($)",
+                        xaxis_title="Mes",
+                        template="plotly_white",
+                        margin=dict(l=40, r=20, t=60, b=40),
+                        title_x=0.02)
 
 st.subheader("📈 Evolución de Total Provision (Últimos 5 meses)")
 st.plotly_chart(fig_linea, use_container_width=True)
 
-# ===== COMPARATIVO DE RANGOS =====
+# ==========================================================
+# DISTRIBUCIÓN DE PROVISIONES POR RANGO
+# ==========================================================
 st.subheader("🥧 Distribución de Provisión por Rango (Comparativo)")
 
 df_pie_ant = df_mes_ant if not df_mes_ant.empty else df_filtrado.copy()
@@ -229,5 +278,8 @@ with col_pie2:
                          color_discrete_sequence=px.colors.qualitative.Pastel)
     st.plotly_chart(fig_pie_act, use_container_width=True)
 
+# ==========================================================
+# FOOTER
+# ==========================================================
 st.markdown("---")
 st.caption("Desarrollado en Streamlit – Dashboard Provisiones © 2025")
