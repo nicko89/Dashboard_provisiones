@@ -411,4 +411,4 @@ with col_pie2:
     st.plotly_chart(fig_pie_act, use_container_width=True)
 
 st.markdown("---")
-st.caption("Desarrollado en Streamlit – Dashboard Provisiones © 2025")import pandas as pd
+st.caption("Desarrollado en Streamlit – Dashboard Provisiones © 2025")
