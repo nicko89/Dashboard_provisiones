@@ -22,7 +22,7 @@ COLOR_PALETTE = [
 st.markdown(
     """
     <style>
-    /* Fondo usando la imagen proporcionada - MEJORADO */
+    /* FONDO PRINCIPAL - IMAGEN COMPLETA */
     .stApp {
         background-image: url("/assets/Fondo.jpg");
         background-size: cover;
@@ -31,146 +31,156 @@ st.markdown(
         background-position: center;
     }
     
-    /* Overlay más sutil para mejor legibilidad */
+    /* ELIMINAR OVERLAY OSCURO DEL CONTENEDOR PRINCIPAL */
     .main .block-container {
-        background-color: rgba(0,0,0,0.7);
-        border-radius: 10px;
+        background-color: transparent !important;
         padding: 20px;
-        margin: 10px;
+        margin: 0px;
     }
     
-    /* Header mejorado con colores corporativos */
+    /* HEADER CON FONDO SEMITRANSPARENTE */
     .header-box {
-        background: rgba(133, 153, 76, 0.9); /* Verde Oliva */
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 5px solid #A5333F; /* Rojo Borgoña */
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 25px;
+        border-radius: 15px;
+        border-left: 8px solid #A5333F;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
     }
     
-    /* Títulos en blanco */
+    /* TÍTULOS EN NEGRO PARA MEJOR CONTRASTE */
     h1, h2, h3, h4, h5, h6 { 
-        color: white !important; 
-        font-weight: 600 !important;
-    }
-    
-    /* Texto general en blanco */
-    p, span, div, label, .stMarkdown, .stSubheader { 
-        color: white !important; 
-    }
-    
-    /* Métricas con fondo oscuro y colores corporativos */
-    [data-testid="metric-container"] {
-        background: rgba(119, 95, 74, 0.9) !important; /* Marrón Café */
-        border: 1px solid #A59288; /* Beige */
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
-    
-    /* Labels de métricas en blanco */
-    [data-testid="metric-label"] {
-        color: white !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Valores de métricas en blanco */
-    [data-testid="metric-value"] {
-        color: white !important;
+        color: black !important; 
         font-weight: 700 !important;
     }
     
-    /* Delta de métricas - Verde corporativo */
+    /* TEXTO GENERAL EN NEGRO */
+    p, span, div, label, .stMarkdown, .stSubheader { 
+        color: black !important; 
+        font-weight: 500 !important;
+    }
+    
+    /* MÉTRICAS CON FONDO SEMITRANSPARENTE BLANCO */
+    [data-testid="metric-container"] {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 2px solid #85994C;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    /* LABELS DE MÉTRICAS EN NEGRO */
+    [data-testid="metric-label"] {
+        color: black !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+    }
+    
+    /* VALORES DE MÉTRICAS EN NEGRO */
+    [data-testid="metric-value"] {
+        color: black !important;
+        font-weight: 800 !important;
+        font-size: 24px !important;
+    }
+    
+    /* DELTA DE MÉTRICAS - COLOR CORPORATIVO */
     [data-testid="metric-delta"] {
-        color: #B0C950 !important; /* Verde Lima */
+        color: #A5333F !important;
         font-weight: 600 !important;
     }
     
-    /* Gráficos con fondo transparente */
+    /* GRÁFICOS CON FONDO TRANSPARENTE */
     .js-plotly-plot, .plotly {
         background-color: transparent !important;
-        border-radius: 10px;
+        border-radius: 12px;
     }
     
-    /* Títulos de gráficos en blanco */
+    /* TÍTULOS DE GRÁFICOS EN NEGRO */
     .gtitle, .xtitle, .ytitle {
-        color: white !important;
-        font-weight: 600 !important;
+        color: black !important;
+        font-weight: 700 !important;
     }
     
-    /* Ejes y texto de gráficos en blanco */
+    /* EJES Y TEXTO DE GRÁFICOS EN NEGRO */
     .xtick text, .ytick text, .legend text {
-        color: white !important;
+        color: black !important;
     }
     
-    /* Líneas de grid en gráficos */
+    /* LÍNEAS DE GRID EN GRÁFICOS */
     .gridlayer .xgrid, .gridlayer .ygrid {
-        stroke: rgba(255,255,255,0.1) !important;
+        stroke: rgba(0,0,0,0.1) !important;
     }
     
-    /* Sidebar con colores corporativos */
+    /* SIDEBAR CON FONDO SEMITRANSPARENTE */
     .css-1d391kg, .css-1lcbmhc {
-        background-color: rgba(94, 59, 66, 0.9) !important; /* Borgoña Oscuro */
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(10px);
     }
     
-    .sidebar .sidebar-content {
-        color: white !important;
-    }
-    
-    /* Texto del sidebar en blanco */
+    /* TEXTO DEL SIDEBAR EN NEGRO */
     .stSidebar h1, .stSidebar h2, .stSidebar h3, 
     .stSidebar p, .stSidebar label, .stSidebar div {
-        color: white !important;
+        color: black !important;
+        font-weight: 500 !important;
     }
     
-    /* Inputs del sidebar */
+    /* INPUTS DEL SIDEBAR */
     .stTextInput input, .stSelectbox select, .stSelectbox span {
-        color: white !important;
-        background-color: rgba(165, 146, 136, 0.9) !important; /* Beige */
-        border: 1px solid #775F4A !important; /* Marrón Café */
-        border-radius: 6px;
-    }
-    
-    /* Dataframe con fondo corporativo */
-    .dataframe {
-        background-color: rgba(94, 59, 66, 0.9) !important; /* Borgoña Oscuro */
-        color: white !important;
+        color: black !important;
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        border: 2px solid #85994C !important;
         border-radius: 8px;
-        border: 1px solid #A59288; /* Beige */
+        font-weight: 500 !important;
     }
     
-    /* Botones mejorados con colores corporativos */
+    /* DATAFRAME CON FONDO SEMITRANSPARENTE */
+    .dataframe {
+        background-color: rgba(255, 255, 255, 0.9) !important;
+        color: black !important;
+        border-radius: 10px;
+        border: 2px solid #A5333F;
+    }
+    
+    /* BOTONES MEJORADOS */
     .stButton button {
-        background-color: #A5333F; /* Rojo Borgoña */
+        background-color: #A5333F;
         color: white;
-        border-radius: 6px;
+        border-radius: 8px;
         border: none;
-        padding: 8px 16px;
-        font-weight: 500;
+        padding: 12px 24px;
+        font-weight: 600;
+        font-size: 14px;
         transition: all 0.3s ease;
     }
     
     .stButton button:hover {
-        background-color: #5E3B42; /* Borgoña Oscuro */
+        background-color: #5E3B42;
         color: white;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.2);
     }
     
-    /* Separadores con color corporativo */
+    /* SEPARADORES CON COLOR CORPORATIVO */
     .stMarkdown hr {
         margin: 2rem 0;
         border: none;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #B0C950, transparent);
+        height: 3px;
+        background: linear-gradient(90deg, transparent, #A5333F, transparent);
     }
     
-    /* Mejora para tablas */
+    /* MEJORA PARA TABLAS */
     .stDataFrame {
-        border: 1px solid #A59288;
-        border-radius: 8px;
+        border: 2px solid #A5333F;
+        border-radius: 10px;
+    }
+    
+    /* CONTENEDOR DE GRÁFICOS CON FONDO SEMITRANSPARENTE */
+    .element-container {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 12px;
+        padding: 15px;
+        margin: 10px 0;
     }
     </style>
     """,
@@ -180,19 +190,22 @@ st.markdown(
 # ===== ENCABEZADO MEJORADO =====
 col1, col2 = st.columns([1, 3])
 with col1:
-    st.image("assets/Logo.png", width=250)
+    st.image("assets/Logo.png", width=300)  # Logo más grande
 with col2:
     st.markdown(
         """
         <div class="header-box">
-        <h1 style="margin:0; text-align:center; color: white !important; font-size: 2.2rem;">
-        📊 Provision Cartera USA
+        <h1 style="margin:0; text-align:center; color: #A5333F !important; font-size: 2.5rem; font-weight: 800;">
+        📊 PROVISION CARTERA USA
         </h1>
+        <p style="margin:10px 0 0 0; text-align:center; color: #333 !important; font-size: 1.2rem; font-weight: 600;">
+        Dashboard de Análisis y Gestión
+        </p>
         </div>
         """,
         unsafe_allow_html=True,
     )
-
+    
 # ===== CARGA DE DATOS =====
 @st.cache_data
 def cargar_datos():
@@ -476,13 +489,10 @@ fig_linea.update_traces(
 )
 
 fig_linea.update_layout(
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)',
-    font=dict(color='white', size=12),
-    xaxis=dict(
-        title_text="Mes",
-        showgrid=False,
-        tickfont=dict(color='white')
+    font=dict(color='black', size=12),  # Cambiar 'white' por 'black'
+    xaxis=dict(tickfont=dict(color='black')),
+    yaxis=dict(tickfont=dict(color='black'))
+)
     ),
     yaxis=dict(
         title_text="Total Provision ($)",
@@ -539,9 +549,9 @@ with col_pie1:
     fig_pie_ant.update_layout(
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='white'),
-        title=dict(font=dict(color='white')),
-        legend=dict(font=dict(color='white'))
+        font=dict(color='black'),
+        title=dict(font=dict(color='black')),
+        legend=dict(font=dict(color='black'))
     )
     st.plotly_chart(fig_pie_ant, use_container_width=True)
 
@@ -556,14 +566,14 @@ with col_pie2:
     fig_pie_act.update_traces(
         textposition='inside', 
         textinfo='percent+label',
-        textfont=dict(color='white', size=12)
+        textfont=dict(color='black', size=12)
     )
     fig_pie_act.update_layout(
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
         font=dict(color='white'),
-        title=dict(font=dict(color='white')),
-        legend=dict(font=dict(color='white'))
+        title=dict(font=dict(color='black')),
+        legend=dict(font=dict(color='black'))
     )
     st.plotly_chart(fig_pie_act, use_container_width=True)
 
