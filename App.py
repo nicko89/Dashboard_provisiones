@@ -527,6 +527,7 @@ with col_pie2:
     st.plotly_chart(fig_pie_act, use_container_width=True)
 
 # ===== PIE DE PÁGINA =====
+# ===== PIE DE PÁGINA =====
 st.markdown("---")
 st.markdown(
     """
