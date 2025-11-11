@@ -24,7 +24,7 @@ st.markdown(
     <style>
     /* FONDO CON IMAGEN - CORREGIDO */
     [data-testid="stAppViewContainer"] {
-        background-image: url("/assets/Fondo.jpg");
+        background-image: url("assets/Fondo.jpg");
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -148,7 +148,7 @@ st.markdown(
 st.markdown(
     """
     <div style='text-align: center; padding: 20px 0;'>
-        <img src="/assets/Logo.png" width="300" style='margin-bottom: 20px;'>
+        <img src="assets/Logo.png" width="380" style='margin-bottom: 20px;'>
         <h1 style='color: white; font-size: 2.8rem; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin: 10px 0;'>
         📊 PROVISION CARTERA USA
         </h1>
