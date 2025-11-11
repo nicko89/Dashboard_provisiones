@@ -6,31 +6,176 @@ from dateutil.relativedelta import relativedelta
 # ===== CONFIGURACIÓN DE LA PÁGINA =====
 st.set_page_config(page_title="Provision Cartera USA", layout="wide")
 
-# ===== ENCABEZADO CON LOGO =====
-col1, col2 = st.columns([1, 5])
-with col1:
-    st.image("assets/Logo.png", width=210)
-with col2:
-    st.markdown("""
-        <h2 style="margin-bottom:0; text-align:center;">Dashboard de Provisiones USA</h2>
-        <p style="color:gray; margin-top:0; text-align:center;">Análisis interactivo de provisiones contables</p>
-    """, unsafe_allow_html=True)
+# ===== CSS MEJORADO - FONDO OSCURO =====
+st.markdown(
+    """
+    <style>
+    /* Fondo usando la imagen proporcionada */
+    .stApp {
+        background-image: url("/assets/Fondo.jpg");
+        background-size: cover;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+    }
+    
+    /* Overlay oscuro para mejor legibilidad */
+    .stApp::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-color: rgba(0,0,0,0.85);
+        z-index: 0;
+    }
+    
+    /* Header mejorado */
+    .header-box {
+        background: rgba(255,255,255,0.95);
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 5px solid #2E7D32;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    
+    /* Títulos en blanco */
+    h1, h2, h3, h4, h5, h6 { 
+        color: white !important; 
+        font-weight: 600 !important;
+    }
+    
+    /* Texto general en blanco */
+    p, span, div, label, .stMarkdown, .stSubheader { 
+        color: white !important; 
+    }
+    
+    /* Métricas con fondo oscuro */
+    [data-testid="metric-container"] {
+        background: rgba(30,30,30,0.9) !important;
+        border: 1px solid #444;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    
+    /* Labels de métricas en blanco */
+    [data-testid="metric-label"] {
+        color: white !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Valores de métricas en blanco */
+    [data-testid="metric-value"] {
+        color: white !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Delta de métricas */
+    [data-testid="metric-delta"] {
+        color: #81C784 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Gráficos sin fondo y texto en negro */
+    .js-plotly-plot, .plotly {
+        background-color: transparent !important;
+        border-radius: 10px;
+    }
+    
+    /* Títulos de gráficos en blanco */
+    .gtitle, .xtitle, .ytitle {
+        color: black !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Sidebar con texto blanco */
+    .css-1d391kg, .css-1lcbmhc {
+        background-color: rgba(40,40,40,0.9) !important;
+    }
+    
+    .sidebar .sidebar-content {
+        color: white !important;
+    }
+    
+    /* Texto del sidebar en blanco */
+    .stSidebar h1, .stSidebar h2, .stSidebar h3, 
+    .stSidebar p, .stSidebar label, .stSidebar div {
+        color: white !important;
+    }
+    
+    /* Inputs del sidebar */
+    .stTextInput input, .stSelectbox select, .stSelectbox span {
+        color: white !important;
+        background-color: rgba(60,60,60,0.9) !important;
+        border: 1px solid #666 !important;
+        border-radius: 6px;
+    }
+    
+    /* Dataframe con fondo oscuro */
+    .dataframe {
+        background-color: rgba(30,30,30,0.9) !important;
+        color: white !important;
+        border-radius: 8px;
+        border: 1px solid #444;
+    }
+    
+    /* Botones mejorados */
+    .stButton button {
+        background-color: #2E7D32;
+        color: white;
+        border-radius: 6px;
+        border: none;
+        padding: 8px 16px;
+        font-weight: 500;
+    }
+    
+    .stButton button:hover {
+        background-color: #1B5E20;
+        color: white;
+    }
+    
+    /* Separadores */
+    .stMarkdown hr {
+        margin: 2rem 0;
+        border: none;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #2E7D32, transparent);
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-st.markdown("---")
+# ===== PALETA DE COLORES PARA GRÁFICOS =====
+COLOR_PALETTE = ['#2E7D32', '#4CAF50', '#81C784', '#C8E6C9', '#1B5E20']
+
+# ===== ENCABEZADO MEJORADO =====
+col1, col2 = st.columns([1, 3])
+with col1:
+    st.image("assets/Logo.png", width=250)
+with col2:
+    st.markdown(
+        """
+        <div class="header-box">
+        <h1 style="margin:0; text-align:center; color: #1B5E20 !important; font-size: 2.2rem;">
+        📊 Provision Cartera USA
+        </h1>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # ===== CARGA DE DATOS =====
 @st.cache_data
 def cargar_datos():
-    # Carga base principal
     df = pd.read_excel("Data/Base Provision.xlsx")
     df.columns = df.columns.str.strip()
-    df['Fecha'] = pd.to_datetime(df['Fecha'])
-    # Intento robusto de leer la hoja "Write off" (si existe)
+    df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
     try:
         df_write = pd.read_excel("Data/Base Provision.xlsx", sheet_name="Write off")
         df_write.columns = df_write.columns.str.strip()
     except Exception:
-        df_write = pd.DataFrame()  # vacío si no existe
+        df_write = pd.DataFrame()
     return df, df_write
 
 df, df_write = cargar_datos()
@@ -53,30 +198,30 @@ df = df[df['TipoCliente'] != "INT"].copy()
 # ===== CÁLCULO DE PROVISIONES =====
 def provision_91_180(row):
     saldo = row.get('91 - 180', 0)
-    if saldo <= 0:
+    if pd.isna(saldo) or saldo <= 0:
         return 0
     return saldo * (0.20 if row['Fecha'].year == 2024 else 0.03)
 
 def provision_181_270(row):
     saldo = row.get('181 - 270', 0)
-    return saldo * 0.50 if saldo > 0 else 0
+    return saldo * 0.50 if (not pd.isna(saldo) and saldo > 0) else 0
 
 def provision_271_360(row):
     saldo = row.get('271-360', 0)
-    if saldo <= 0:
+    if pd.isna(saldo) or saldo <= 0:
         return 0
     return saldo * (0.50 if row['Fecha'].year == 2024 else 1.0)
 
 def provision_mayor_360(row):
     saldo = row.get('> 360', 0)
-    return saldo if saldo > 0 else 0
+    return saldo if (not pd.isna(saldo) and saldo > 0) else 0
 
 df['Provision 91-180'] = df.apply(provision_91_180, axis=1)
 df['Provision 181-270'] = df.apply(provision_181_270, axis=1)
 df['Provision 271-360'] = df.apply(provision_271_360, axis=1)
 df['Provision >360'] = df.apply(provision_mayor_360, axis=1)
 df['Total Provision'] = df[['Provision 91-180', 'Provision 181-270',
-                            'Provision 271-360', 'Provision >360']].sum(axis=1)
+                            'Provision 271-360', 'Provision >360']].sum(axis=1).fillna(0)
 
 # ===== CAMPOS TEMPORALES =====
 df['Año'] = df['Fecha'].dt.year
@@ -84,16 +229,38 @@ df['Mes'] = df['Fecha'].dt.month
 df['AñoMes'] = df['Fecha'].dt.to_period('M')
 df['AñoMes_str'] = df['AñoMes'].astype(str)
 
-# ===== FILTROS =====
-st.sidebar.header("🗓️ Filtros de Periodo")
-año_sel = st.sidebar.selectbox("Seleccionar año:", sorted(df['Año'].unique(), reverse=True))
-meses_disponibles = sorted(df[df['Año'] == año_sel]['Mes'].unique())
-mes_sel = st.sidebar.selectbox("Seleccionar mes:", meses_disponibles)
+# ===== SIDEBAR MEJORADO =====
+with st.sidebar:
+    st.markdown("### 🗓️ Filtros de Periodo")
+    año_sel = st.selectbox("Seleccionar año:", sorted(df['Año'].unique(), reverse=True))
+    meses_disponibles = sorted(df[df['Año'] == año_sel]['Mes'].unique())
+    mes_sel = st.selectbox("Seleccionar mes:", meses_disponibles)
+    
+    st.markdown("---")
+    st.markdown("### 🔍 Buscador")
+    if 'busqueda' not in st.session_state:
+        st.session_state['busqueda'] = ''
+    
+    clientes_list = sorted(df['Customer'].dropna().unique().tolist())
+    cliente_options = ['Todos'] + clientes_list
+    
+    st.text_input("Buscar Cliente o Infor Code:", key='busqueda', placeholder="Escribe para buscar...")
+    
+    st.markdown("### 👥 Selección de Cliente")
+    st.selectbox("Seleccionar Cliente:", cliente_options, key='cliente_detalle')
+    
+    def _clear_filters():
+        st.session_state['busqueda'] = ''
+        st.session_state['cliente_detalle'] = 'Todos'
+    
+    if st.button("🧹 Limpiar Filtros", use_container_width=True):
+        _clear_filters()
+        st.rerun()
 
-# ===== BUSCADOR UNIFICADO =====
-st.sidebar.header("🔍 Buscador")
-busqueda = st.sidebar.text_input("Buscar Cliente o Infor Code:")
+busqueda = st.session_state.get('busqueda', '')
+cliente_detalle = st.session_state.get('cliente_detalle', 'Todos')
 
+# ===== FILTRADO PRINCIPAL POR AÑO/MES =====
 df_filtrado = df[(df['Año'] == año_sel) & (df['Mes'] == mes_sel)].copy()
 
 if busqueda:
@@ -102,7 +269,10 @@ if busqueda:
         df_filtrado['Infor Code'].str.contains(busqueda, case=False, na=False)
     ]
 
-# ===== MES ANTERIOR (filtrado también) =====
+if cliente_detalle and cliente_detalle != 'Todos':
+    df_filtrado = df_filtrado[df_filtrado['Customer'] == cliente_detalle].copy()
+
+# ===== MES ANTERIOR =====
 fecha_sel = pd.Timestamp(año_sel, mes_sel, 1)
 fecha_ant = fecha_sel - relativedelta(months=1)
 df_mes_ant = df[(df['Fecha'].dt.year == fecha_ant.year) & (df['Fecha'].dt.month == fecha_ant.month)].copy()
@@ -112,220 +282,258 @@ if busqueda:
         df_mes_ant['Customer'].str.contains(busqueda, case=False, na=False) |
         df_mes_ant['Infor Code'].str.contains(busqueda, case=False, na=False)
     ]
+if cliente_detalle and cliente_detalle != 'Todos':
+    df_mes_ant = df_mes_ant[df_mes_ant['Customer'] == cliente_detalle].copy()
 
-# ===== MÉTRICAS =====
+# ===== CÁLCULO DE MÉTRICAS =====
 total_actual = df_filtrado['Total Provision'].sum()
 total_anterior = df_mes_ant['Total Provision'].sum() if not df_mes_ant.empty else 0
 variacion_abs = total_actual - total_anterior
-variacion_pct = (variacion_abs / total_anterior * 100) if total_anterior != 0 else 0
+variacion_pct = (variacion_abs / total_anterior * 100) if total_anterior != 0 else 0.0
 
-# ===== CÁLCULO DE WRITE OFF (solo se añadió esta parte, robusta) =====
-# Si df_write está vacío, writeoffs_mes quedará 0.
+# ===== CÁLCULO DE WRITE OFF MEJORADO (basado en tu DAX) =====
 writeoffs_mes = 0
+
 if not df_write.empty:
-    # Normalizar nombres de columnas y detectar columnas relevantes
+    # Limpiar columnas
     cols = [c.strip() for c in df_write.columns.tolist()]
     df_write.columns = cols
-
-    # detectar columna fecha
-    date_candidates = ['Date', 'Fecha', 'date', 'fecha']
-    date_col = next((c for c in cols if c in date_candidates), None)
-
-    # detectar columna monto
-    amount_candidates = ['Amount', 'Monto', 'amount', 'monto', 'Valor', 'Value']
-    amount_col = next((c for c in cols if c in amount_candidates), None)
-
-    # detectar columna cust/vendor
-    cust_candidates = ['Cust/Vendor', 'Cust Vendor', 'Customer', 'Cust', 'Vendor', 'CustVendor', 'Cust / Vendor']
-    cust_col = next((c for c in cols if c in cust_candidates), None)
-
-    # Si hay una columna de fecha con otro nombre aproximado, buscar por heurística: columna de tipo datetime o con "date" en el nombre
-    if date_col is None:
-        for c in cols:
-            if 'date' in c.lower():
-                date_col = c
-                break
-
-    # Si amount_col es None, intentar buscar columna que contenga "amount" o "monto" en su nombre
-    if amount_col is None:
-        for c in cols:
-            if 'amount' in c.lower() or 'monto' in c.lower() or 'valor' in c.lower() or 'value' in c.lower():
-                amount_col = c
-                break
-
-    # Si cust_col es None, intentar buscar columna que contenga 'cust' o 'vendor' o 'customer'
-    if cust_col is None:
-        for c in cols:
-            low = c.lower()
-            if 'cust' in low or 'vendor' in low or 'customer' in low:
-                cust_col = c
-                break
-
-    # Si no encontramos amount_col o date_col, evitamos romper la app
-    if amount_col is None:
-        # intentar usar la primera columna numérica como monto
-        numeric_cols = df_write.select_dtypes(include='number').columns.tolist()
-        if numeric_cols:
-            amount_col = numeric_cols[0]
-
-    # Aplicar transformaciones si tenemos lo mínimo (fecha y monto)
-    if date_col is not None and amount_col is not None:
-        # convertir fecha
+    
+    # Buscar columnas relevantes
+    date_col = next((c for c in cols if any(x in c.lower() for x in ['date', 'fecha'])), None)
+    amount_col = next((c for c in cols if any(x in c.lower() for x in ['amount', 'monto', 'valor', 'credit', 'debit'])), None)
+    cust_col = next((c for c in cols if any(x in c.lower() for x in ['cust', 'vendor', 'customer', 'name'])), None)
+    
+    if date_col and amount_col:
+        # Convertir fecha
         df_write[date_col] = pd.to_datetime(df_write[date_col], errors='coerce')
+        
+        # Filtrar por mes seleccionado
+        df_write_mes = df_write[
+            (df_write[date_col].dt.year == año_sel) & 
+            (df_write[date_col].dt.month == mes_sel)
+        ].copy()
+        
+        # Aplicar filtros similares a DAX
+        if cust_col:
+            # Excluir INT y vacíos
+            df_write_mes = df_write_mes[
+                df_write_mes[cust_col].notna() &
+                ~df_write_mes[cust_col].astype(str).str.strip().str[:3].str.upper().eq('INT')
+            ]
+            
+            # Si hay filtro por cliente, aplicar
+            if cliente_detalle and cliente_detalle != 'Todos':
+                df_write_mes = df_write_mes[
+                    df_write_mes[cust_col].astype(str).str.strip().str.upper() == 
+                    cliente_detalle.strip().upper()
+                ]
+            elif busqueda:
+                # Filtrar por búsqueda
+                df_write_mes = df_write_mes[
+                    df_write_mes[cust_col].str.contains(busqueda, case=False, na=False)
+                ]
+        
+        # Calcular suma
+        df_write_mes[amount_col] = pd.to_numeric(df_write_mes[amount_col], errors='coerce').fillna(0)
+        writeoffs_mes = df_write_mes[amount_col].sum()
 
-        # filtrar cust/vendor no nulos y que no empiecen por "INT"
-        if cust_col is not None:
-            # quitar nulos en cust_col
-            df_write = df_write[df_write[cust_col].notna()].copy()
-            # filtrar que los primeros 3 caracteres != 'INT'
-            df_write = df_write[~df_write[cust_col].astype(str).str.strip().str[:3].str.upper().eq('INT')]
-        else:
-            # si no hay columna de cliente, solo quitamos nulos en monto/fecha
-            pass
-
-        # crear periodo y comparar con selección
-        df_write['Año'] = df_write[date_col].dt.year
-        df_write['Mes'] = df_write[date_col].dt.month
-
-        # sumar montos en mes seleccionado (coincidiendo con año_sel/mes_sel)
-        try:
-            writeoffs_mes = df_write[
-                (df_write['Año'] == año_sel) & (df_write['Mes'] == mes_sel)
-            ][amount_col].sum()
-            # si es NaN o None, poner 0
-            if pd.isna(writeoffs_mes):
-                writeoffs_mes = 0
-        except Exception:
-            writeoffs_mes = 0
-    else:
-        # no se pudo detectar columnas mínimas; dejamos 0 pero mostramos advertencia visual
-        st.warning("La hoja 'Write off' fue cargada pero no contiene columnas identificables de fecha/monto. Por favor revisa los nombres de columnas.")
-
-# formateo texto writeoffs (igual que tu DAX)
+# Formatear texto de Write Offs (igual que tu DAX)
 if writeoffs_mes == 0 or pd.isna(writeoffs_mes):
     writeoffs_texto = "Sin Write offs"
 else:
-    writeoffs_texto = f"${writeoffs_mes:,.2f}"
+    writeoffs_texto = f"${writeoffs_mes:,.0f}"
 
-# ===== TARJETAS DE MÉTRICAS (ahora 6 columnas para incluir Write Offs) =====
-c1, c2, c3, c4, c5, c6 = st.columns(6)
-c1.metric("🗓 Año", año_sel)
-c2.metric("📆 Mes seleccionado", mes_sel)
-c3.metric("💰 Total mes anterior", f"${total_anterior:,.2f}")
-c4.metric("💰 Total mes actual", f"${total_actual:,.2f}")
-c5.metric("📈 Variación %", f"{variacion_pct:.2f}%")
-c6.metric("💸 Write Offs", writeoffs_texto)
+# ===== MÉTRICAS REORGANIZADAS =====
+st.markdown(f"### 📊 Resumen - {mes_sel}/{año_sel}")
+
+# Primera línea - Año y Mes
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("🗓️ Año", año_sel)
+with col2:
+    st.metric("📅 Mes", mes_sel)
+with col3:
+    # Espacio vacío
+    st.write("")
+with col4:
+    # Espacio vacío
+    st.write("")
+
+# Segunda línea - Métricas financieras
+col5, col6, col7, col8 = st.columns(4)
+with col5:
+    st.metric("💰 Mes Anterior", f"${total_anterior:,.0f}")
+with col6:
+    st.metric("💸 Write Offs", writeoffs_texto)
+with col7:
+    st.metric("💰 Mes Actual", f"${total_actual:,.0f}")
+with col8:
+    # Mostrar variación absoluta y porcentual
+    delta_text = f"${variacion_abs:,.0f} | {variacion_pct:+.1f}%"
+    st.metric("📈 Variación", f"${variacion_abs:,.0f}", delta=f"{variacion_pct:+.1f}%")
 
 st.markdown("---")
 
 # ===== TABLA DE CLIENTES =====
-st.subheader(f"📋 Total de Provisiones - {año_sel}-{mes_sel:02d}")
+st.subheader(f"📋 Detalle de Provisiones por Cliente")
 df_tabla = df_filtrado.groupby(['Infor Code', 'Customer'], as_index=False)['Total Provision'].sum()
-# evitar división por cero si suma = 0
 suma_total_prov = df_tabla['Total Provision'].sum()
 df_tabla['% del Total'] = (df_tabla['Total Provision'] / suma_total_prov * 100) if suma_total_prov != 0 else 0
 
+# Ordenar por provision descendente
+df_tabla = df_tabla.sort_values('Total Provision', ascending=False)
+
+# Aplicar formato
+styled_df = df_tabla.style.format({
+    "Total Provision": "${:,.2f}",
+    "% del Total": "{:.2f}%"
+})
+
 st.dataframe(
-    df_tabla.style.format({
-        "Total Provision": "${:,.2f}",
-        "% del Total": "{:.2f}%"
-    })
+    styled_df,
+    use_container_width=True,
+    height=400
 )
 
-# ===== EVOLUCIÓN DE LOS ÚLTIMOS 5 MESES (CORREGIDO: MENSUAL, LÍNEA MÁS GRUESA, GRID PUNTEADO) =====
+st.markdown("---")
+
+# ===== EVOLUCIÓN DE LOS ÚLTIMOS 5 MESES =====
 periodo_sel = pd.Period(fecha_sel, freq='M')
 ultimos_5 = [periodo_sel - i for i in range(4, -1, -1)]
-
-# Filtrar los 5 periodos de interés
 df_ultimos_5 = df[df['AñoMes'].isin(ultimos_5)].copy()
 
-# Si hay búsqueda (cliente/infor code), aplicar el filtro también aquí
 if busqueda:
     df_ultimos_5 = df_ultimos_5[
         df_ultimos_5['Customer'].str.contains(busqueda, case=False, na=False) |
         df_ultimos_5['Infor Code'].str.contains(busqueda, case=False, na=False)
     ]
+if cliente_detalle and cliente_detalle != 'Todos':
+    df_ultimos_5 = df_ultimos_5[df_ultimos_5['Customer'] == cliente_detalle].copy()
 
-# Agrupar por periodo (asegurando orden cronológico) y crear etiqueta bonita para el eje X
 df_agrupado = (
     df_ultimos_5
     .groupby('AñoMes', as_index=False)['Total Provision']
     .sum()
     .sort_values('AñoMes')
 )
-# Etiqueta tipo "Jul 2024"
 df_agrupado['AñoMes_label'] = df_agrupado['AñoMes'].dt.to_timestamp().dt.strftime('%b %Y')
 
-# Escala adaptativa: sin búsqueda -> 200k, con búsqueda -> 50k
-y_max = 50000 if busqueda else 200000
-
-# Crear figura
+# Gráfico de línea sin fondo
 fig_linea = px.line(
     df_agrupado,
     x='AñoMes_label',
     y='Total Provision',
     markers=True,
-    title="Evolución mensual de la Provisión Total",
-    color_discrete_sequence=['#0072B2']
+    title="Evolución Mensual de la Provisión Total",
+    color_discrete_sequence=[COLOR_PALETTE[0]]
 )
 
-# Grosor de línea
-fig_linea.update_traces(line=dict(width=4), marker=dict(size=8))
-
-# Eje Y: rango fijo adaptativo, ticks cada 25k (visualmente agradable)
-fig_linea.update_yaxes(
-    range=[100000, y_max],
-    tick0=100000,
-    dtick=50000,              # líneas y ticks cada 25k
-    tickformat=",",           # formato numérico con separador de miles
-    showgrid=True,
-    gridwidth=1,
-    gridcolor="rgba(200,200,200,0.35)",   # gris suave
-    griddash="dash"
+# Configurar gráfico sin fondo
+fig_linea.update_traces(
+    line=dict(width=4), 
+    marker=dict(size=8),
+    hovertemplate="<b>%{x}</b><br>Provision: $%{y:,.0f}<extra></extra>"
 )
 
-# Eje X: etiquetas mensuales
-fig_linea.update_xaxes(
-    title_text="Mes",
-    tickmode='array',
-    tickvals=df_agrupado['AñoMes_label'],
-    ticktext=df_agrupado['AñoMes_label'],
-    showgrid=False
-)
-
-# Layout general (tema oscuro/ligero si quieres)
 fig_linea.update_layout(
-    yaxis_title="Total Provision ($)",
-    xaxis_title="Mes",
-    template="plotly_white",
-    margin=dict(l=40, r=20, t=60, b=40),
-    title_x=0.02
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)',
+    font=dict(color='black', size=12),
+    xaxis=dict(
+        title_text="Mes",
+        showgrid=False,
+        tickfont=dict(color='black')
+    ),
+    yaxis=dict(
+        title_text="Total Provision ($)",
+        tickformat=",",
+        showgrid=True,
+        gridcolor='rgba(128,128,128,0.2)',
+        tickfont=dict(color='black')
+    ),
+    title=dict(
+        font=dict(color='black', size=16)
+    ),
+    margin=dict(l=40, r=20, t=60, b=40)
 )
 
 st.subheader("📈 Evolución de Total Provision (Últimos 5 meses)")
 st.plotly_chart(fig_linea, use_container_width=True)
 
 # ===== COMPARATIVO DE RANGOS =====
-st.subheader("🥧 Distribución de Provisión por Rango (Comparativo)")
+st.subheader("🥧 Distribución de Provisión por Rango de Edad")
 
 df_pie_ant = df_mes_ant if not df_mes_ant.empty else df_filtrado.copy()
 totales_ant = df_pie_ant[['Provision 91-180', 'Provision 181-270', 'Provision 271-360', 'Provision >360']].sum().to_dict()
 totales_act = df_filtrado[['Provision 91-180', 'Provision 181-270', 'Provision 271-360', 'Provision >360']].sum().to_dict()
 
+# Crear DataFrames para los gráficos de pie
 df_pie_ant = pd.DataFrame(list(totales_ant.items()), columns=['Rango', 'Total'])
 df_pie_act = pd.DataFrame(list(totales_act.items()), columns=['Rango', 'Total'])
 
+# Mejorar nombres de rangos
+rango_names = {
+    'Provision 91-180': '91-180 días',
+    'Provision 181-270': '181-270 días', 
+    'Provision 271-360': '271-360 días',
+    'Provision >360': '>360 días'
+}
+df_pie_ant['Rango'] = df_pie_ant['Rango'].map(rango_names)
+df_pie_act['Rango'] = df_pie_act['Rango'].map(rango_names)
+
 col_pie1, col_pie2 = st.columns(2)
+
 with col_pie1:
-    fig_pie_ant = px.pie(df_pie_ant, values='Total', names='Rango',
-                         title=f"Mes Anterior ({fecha_ant.strftime('%Y-%m')})",
-                         color_discrete_sequence=px.colors.qualitative.Pastel)
+    fig_pie_ant = px.pie(
+        df_pie_ant, 
+        values='Total', 
+        names='Rango',
+        title=f"Mes Anterior ({fecha_ant.strftime('%Y-%m')})",
+        color_discrete_sequence=COLOR_PALETTE
+    )
+    fig_pie_ant.update_traces(
+        textposition='inside', 
+        textinfo='percent+label',
+        textfont=dict(color='black')
+    )
+    fig_pie_ant.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='black'),
+        title=dict(font=dict(color='black'))
+    )
     st.plotly_chart(fig_pie_ant, use_container_width=True)
+
 with col_pie2:
-    fig_pie_act = px.pie(df_pie_act, values='Total', names='Rango',
-                         title=f"Mes Seleccionado ({año_sel}-{mes_sel:02d})",
-                         color_discrete_sequence=px.colors.qualitative.Pastel)
+    fig_pie_act = px.pie(
+        df_pie_act, 
+        values='Total', 
+        names='Rango',
+        title=f"Mes Actual ({año_sel}-{mes_sel:02d})",
+        color_discrete_sequence=COLOR_PALETTE
+    )
+    fig_pie_act.update_traces(
+        textposition='inside', 
+        textinfo='percent+label',
+        textfont=dict(color='black')
+    )
+    fig_pie_act.update_layout(
+        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='black'),
+        title=dict(font=dict(color='black'))
+    )
     st.plotly_chart(fig_pie_act, use_container_width=True)
 
+# ===== PIE DE PÁGINA =====
 st.markdown("---")
-st.caption("Desarrollado en Streamlit – Dashboard Provisiones © 2025")
+st.markdown(
+    """
+    <div style='text-align: center; color: #cccccc; padding: 20px;'>
+        <p style='margin: 0; font-size: 0.9rem;'>📊 <strong>Provision Cartera USA</strong> | Desarrollado en Streamlit</p>
+        <p style='margin: 5px 0 0 0; font-size: 0.8rem;'>© 2025 - Dashboard de provisiones contables</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
