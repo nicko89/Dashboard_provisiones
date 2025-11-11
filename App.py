@@ -159,7 +159,7 @@ if not df_write.empty:
         if cust_col:
             df_write_mes = df_write_mes[df_write_mes[cust_col].notna() & ~df_write_mes[cust_col].astype(str).str.strip().str[:3].str.upper().eq('INT')]
             if cliente_detalle!='Todos': df_write_mes = df_write_mes[df_write_mes[cust_col].astype(str).str.strip().str.upper()==cliente_detalle.strip().upper()]
-            elif busqueda: df_write_mes = df_write_mes[df_write_mes[cust_col].str.contains(busqueda, case=False, na=False)]
+            elif busqueda: df_write_mes = df_write_mes[df_write_mes[cust_col].astype(str).str.contains(busqueda, case=False, na=False)]
         df_write_mes[amount_col] = pd.to_numeric(df_write_mes[amount_col], errors='coerce').fillna(0)
         writeoffs_mes = df_write_mes[amount_col].sum()
 
