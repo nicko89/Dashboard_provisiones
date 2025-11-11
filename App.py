@@ -12,7 +12,7 @@ st.markdown(
     <style>
     /* Fondo usando la imagen en assets (overlay blanco para legibilidad) */
     .stApp {
-        background-image: url("/assets/Fondo.jpg");
+        background-image: url("assets/Fondo.jpg");
         background-size: cover;
         background-attachment: fixed;
         background-repeat: no-repeat;
