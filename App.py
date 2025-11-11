@@ -481,7 +481,7 @@ fig_linea = px.line(
     color_discrete_sequence=[COLOR_PALETTE[1]]  # Verde Lima
 )
 
-# Configurar gráfico con tema oscuro
+# Configurar gráfico con tema claro
 fig_linea.update_traces(
     line=dict(width=4), 
     marker=dict(size=8),
@@ -489,20 +489,23 @@ fig_linea.update_traces(
 )
 
 fig_linea.update_layout(
-    font=dict(color='black', size=12),  # Cambiar 'white' por 'black'
-    xaxis=dict(tickfont=dict(color='black')),
-    yaxis=dict(tickfont=dict(color='black'))
-)
+    plot_bgcolor='rgba(0,0,0,0)',
+    paper_bgcolor='rgba(0,0,0,0)',
+    font=dict(color='black', size=12),
+    xaxis=dict(
+        title_text="Mes",
+        showgrid=False,
+        tickfont=dict(color='black')
     ),
     yaxis=dict(
         title_text="Total Provision ($)",
         tickformat=",",
         showgrid=True,
-        gridcolor='rgba(255,255,255,0.1)',
-        tickfont=dict(color='white')
+        gridcolor='rgba(0,0,0,0.1)',
+        tickfont=dict(color='black')
     ),
     title=dict(
-        font=dict(color='white', size=16)
+        font=dict(color='black', size=16)
     ),
     margin=dict(l=40, r=20, t=60, b=40)
 )
