@@ -18,52 +18,49 @@ COLOR_PALETTE = [
     '#5E3B42'   # Marrón Vino/Borgoña Oscuro
 ]
 
-# ===== CSS MEJORADO - FONDO CON IMAGEN VISIBLE =====
+# ===== CSS MEJORADO - FONDO BLANCO COMPLETO =====
 st.markdown(
     """
     <style>
-    /* FONDO PRINCIPAL - IMAGEN COMPLETA */
+    /* FONDO PRINCIPAL - BLANCO SOLIDO */
     .stApp {
-        background-image: url("/assets/Fondo.jpg");
-        background-size: cover;
-        background-attachment: fixed;
-        background-repeat: no-repeat;
-        background-position: center;
+        background-color: #FFFFFF !important;
+        background-image: none !important;
     }
     
-    /* ELIMINAR OVERLAY OSCURO DEL CONTENEDOR PRINCIPAL */
+    /* CONTENEDOR PRINCIPAL TRANSPARENTE */
     .main .block-container {
         background-color: transparent !important;
         padding: 20px;
         margin: 0px;
     }
     
-    /* HEADER CON FONDO SEMITRANSPARENTE */
+    /* HEADER CON FONDO BLANCO Y BORDES COLOR CORPORATIVO */
     .header-box {
-        background: rgba(255, 255, 255, 0.95);
+        background: #FFFFFF;
         padding: 25px;
         border-radius: 15px;
-        border-left: 8px solid #A5333F;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        border: 3px solid #A5333F;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
         text-align: center;
         margin-bottom: 20px;
     }
     
-    /* TÍTULOS EN NEGRO PARA MEJOR CONTRASTE */
+    /* TÍTULOS EN NEGRO */
     h1, h2, h3, h4, h5, h6 { 
-        color: black !important; 
+        color: #000000 !important; 
         font-weight: 700 !important;
     }
     
     /* TEXTO GENERAL EN NEGRO */
     p, span, div, label, .stMarkdown, .stSubheader { 
-        color: black !important; 
+        color: #000000 !important; 
         font-weight: 500 !important;
     }
     
-    /* MÉTRICAS CON FONDO SEMITRANSPARENTE BLANCO */
+    /* MÉTRICAS CON FONDO BLANCO Y BORDE COLOR CORPORATIVO */
     [data-testid="metric-container"] {
-        background: rgba(255, 255, 255, 0.9) !important;
+        background: #FFFFFF !important;
         border: 2px solid #85994C;
         border-radius: 12px;
         padding: 20px;
@@ -72,14 +69,14 @@ st.markdown(
     
     /* LABELS DE MÉTRICAS EN NEGRO */
     [data-testid="metric-label"] {
-        color: black !important;
+        color: #000000 !important;
         font-weight: 600 !important;
         font-size: 14px !important;
     }
     
     /* VALORES DE MÉTRICAS EN NEGRO */
     [data-testid="metric-value"] {
-        color: black !important;
+        color: #000000 !important;
         font-weight: 800 !important;
         font-size: 24px !important;
     }
@@ -90,21 +87,22 @@ st.markdown(
         font-weight: 600 !important;
     }
     
-    /* GRÁFICOS CON FONDO TRANSPARENTE */
+    /* GRÁFICOS CON FONDO BLANCO */
     .js-plotly-plot, .plotly {
-        background-color: transparent !important;
+        background-color: #FFFFFF !important;
         border-radius: 12px;
+        border: 1px solid #DDDDDD;
     }
     
     /* TÍTULOS DE GRÁFICOS EN NEGRO */
     .gtitle, .xtitle, .ytitle {
-        color: black !important;
+        color: #000000 !important;
         font-weight: 700 !important;
     }
     
     /* EJES Y TEXTO DE GRÁFICOS EN NEGRO */
     .xtick text, .ytick text, .legend text {
-        color: black !important;
+        color: #000000 !important;
     }
     
     /* LÍNEAS DE GRID EN GRÁFICOS */
@@ -112,32 +110,32 @@ st.markdown(
         stroke: rgba(0,0,0,0.1) !important;
     }
     
-    /* SIDEBAR CON FONDO SEMITRANSPARENTE */
+    /* SIDEBAR CON FONDO BLANCO */
     .css-1d391kg, .css-1lcbmhc {
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(10px);
+        background-color: #FFFFFF !important;
+        border-right: 2px solid #A5333F;
     }
     
     /* TEXTO DEL SIDEBAR EN NEGRO */
     .stSidebar h1, .stSidebar h2, .stSidebar h3, 
     .stSidebar p, .stSidebar label, .stSidebar div {
-        color: black !important;
+        color: #000000 !important;
         font-weight: 500 !important;
     }
     
     /* INPUTS DEL SIDEBAR */
     .stTextInput input, .stSelectbox select, .stSelectbox span {
-        color: black !important;
-        background-color: rgba(255, 255, 255, 0.8) !important;
+        color: #000000 !important;
+        background-color: #FFFFFF !important;
         border: 2px solid #85994C !important;
         border-radius: 8px;
         font-weight: 500 !important;
     }
     
-    /* DATAFRAME CON FONDO SEMITRANSPARENTE */
+    /* DATAFRAME CON FONDO BLANCO */
     .dataframe {
-        background-color: rgba(255, 255, 255, 0.9) !important;
-        color: black !important;
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
         border-radius: 10px;
         border: 2px solid #A5333F;
     }
@@ -169,18 +167,18 @@ st.markdown(
         background: linear-gradient(90deg, transparent, #A5333F, transparent);
     }
     
-    /* MEJORA PARA TABLAS */
-    .stDataFrame {
-        border: 2px solid #A5333F;
-        border-radius: 10px;
-    }
-    
-    /* CONTENEDOR DE GRÁFICOS CON FONDO SEMITRANSPARENTE */
+    /* CONTENEDOR DE GRÁFICOS CON FONDO BLANCO */
     .element-container {
-        background: rgba(255, 255, 255, 0.8);
+        background: #FFFFFF;
         border-radius: 12px;
         padding: 15px;
         margin: 10px 0;
+        border: 1px solid #DDDDDD;
+    }
+    
+    /* REMOVER CUALQUIER OVERLAY OSCURO */
+    .stApp::before {
+        content: none !important;
     }
     </style>
     """,
