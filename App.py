@@ -18,161 +18,126 @@ COLOR_PALETTE = [
     '#5E3B42'   # Marrón Vino/Borgoña Oscuro
 ]
 
-# ===== CSS MEJORADO - DISEÑO PLANO CON FONDO DE IMAGEN =====
+# ===== CSS CORREGIDO - FONDO DE IMAGEN VISIBLE =====
 st.markdown(
     """
     <style>
-    /* FONDO PRINCIPAL CON IMAGEN */
-    .stApp {
+    /* FONDO CON IMAGEN - CORREGIDO */
+    [data-testid="stAppViewContainer"] {
         background-image: url("/assets/Fondo.jpg");
         background-size: cover;
-        background-attachment: fixed;
-        background-repeat: no-repeat;
         background-position: center;
+        background-attachment: fixed;
     }
     
-    /* CONTENEDOR PRINCIPAL SIN FONDO */
+    /* ELIMINAR FONDOS OSCUROS DE STREAMLIT */
+    .stApp {
+        background-color: transparent;
+    }
+    
     .main .block-container {
-        background-color: transparent !important;
-        padding: 5px;
-        margin: 0px;
-        max-width: 100% !important;
+        background-color: transparent;
+        padding-top: 0px;
+        padding-bottom: 0px;
     }
     
-    /* ELIMINAR FONDOS DE SECCIONES */
-    .block-container {
-        background-color: transparent !important;
-    }
-    
-    /* HEADER SIN FONDO - TEXTO BLANCO */
-    .header-box {
-        background: transparent !important;
-        padding: 30px 20px;
-        text-align: center;
-        margin-bottom: 10px;
-    }
-    
-    /* TÍTULOS EN BLANCO */
+    /* TEXTO EN BLANCO CON SOMBRA PARA MEJOR CONTRASTE */
     h1, h2, h3, h4, h5, h6 { 
         color: white !important; 
         font-weight: 700 !important;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
     }
     
-    /* TEXTO GENERAL EN BLANCO */
-    p, span, div, label, .stMarkdown, .stSubheader { 
+    .stMarkdown, .stSubheader, div, p, span, label { 
         color: white !important; 
-        font-weight: 500 !important;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
     
-    /* MÉTRICAS TRANSPARENTES */
+    /* MÉTRICAS CON FONDO SEMITRANSPARENTE */
     [data-testid="metric-container"] {
-        background: rgba(133, 153, 76, 0.9) !important; /* Verde Oliva */
-        border: none !important;
-        border-radius: 8px;
-        padding: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    
-    /* LABELS DE MÉTRICAS EN BLANCO */
-    [data-testid="metric-label"] {
-        color: white !important;
-        font-weight: 600 !important;
-        font-size: 14px !important;
-    }
-    
-    /* VALORES DE MÉTRICAS EN BLANCO */
-    [data-testid="metric-value"] {
-        color: white !important;
-        font-weight: 800 !important;
-        font-size: 24px !important;
-    }
-    
-    /* DELTA DE MÉTRICAS - COLOR CLARO */
-    [data-testid="metric-delta"] {
-        color: #B0C950 !important; /* Verde Lima */
-        font-weight: 600 !important;
-    }
-    
-    /* GRÁFICOS CON FONDO SEMITRANSPARENTE */
-    .js-plotly-plot, .plotly {
-        background-color: rgba(255, 255, 255, 0.95) !important;
-        border-radius: 10px;
+        background: rgba(133, 153, 76, 0.85) !important;
         border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     
-    /* SIDEBAR CON COLOR CORPORATivo */
-    .css-1d391kg, .css-1lcbmhc {
-        background-color: rgba(165, 51, 63, 0.95) !important; /* Rojo Borgoña */
-        border-right: none;
+    [data-testid="metric-label"], [data-testid="metric-value"] {
+        color: white !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
     
-    /* TEXTO DEL SIDEBAR EN BLANCO */
+    [data-testid="metric-delta"] {
+        color: #B0C950 !important;
+        font-weight: 600;
+    }
+    
+    /* GRÁFICOS CON FONDO BLANCO */
+    .js-plotly-plot, .plotly {
+        background-color: white !important;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    /* SIDEBAR CON COLOR CORPORATIVO */
+    [data-testid="stSidebar"] {
+        background-color: rgba(165, 51, 63, 0.9) !important;
+    }
+    
     .stSidebar h1, .stSidebar h2, .stSidebar h3, 
     .stSidebar p, .stSidebar label, .stSidebar div {
         color: white !important;
-        font-weight: 500 !important;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     }
     
     /* INPUTS DEL SIDEBAR */
     .stTextInput input, .stSelectbox select, .stSelectbox span {
-        color: #000000 !important;
+        color: #333 !important;
         background-color: rgba(255, 255, 255, 0.9) !important;
-        border: 2px solid #B0C950 !important; /* Verde Lima */
-        border-radius: 6px;
-        font-weight: 500 !important;
+        border: 1px solid #B0C950 !important;
+        border-radius: 5px;
     }
     
-    /* DATAFRAME CON FONDO SEMITRANSPARENTE */
+    /* DATAFRAME CON FONDO BLANCO */
     .dataframe {
-        background-color: rgba(255, 255, 255, 0.95) !important;
-        color: #000000 !important;
+        background-color: white !important;
+        color: #333 !important;
         border-radius: 8px;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     
-    /* BOTONES MEJORADOS */
+    /* BOTONES */
     .stButton button {
-        background-color: #A5333F; /* Rojo Borgoña */
+        background-color: #A5333F;
         color: white;
-        border-radius: 6px;
+        border-radius: 5px;
         border: none;
         padding: 10px 20px;
         font-weight: 600;
-        font-size: 14px;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     }
     
     .stButton button:hover {
-        background-color: #5E3B42; /* Borgoña Oscuro */
+        background-color: #5E3B42;
         color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     }
     
-    /* SEPARADORES SUTILES */
+    /* SEPARADORES */
     .stMarkdown hr {
         margin: 2rem 0;
         border: none;
-        height: 1px;
+        height: 2px;
         background: rgba(255,255,255,0.3);
-    }
-    
-    /* REMOVER BORDES Y SOMBRAS EXCESIVAS */
-    .element-container {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 5px 0;
     }
     
     /* REMOVER ESPACIADO EXCESIVO */
     .st-emotion-cache-1y4p8pa {
         padding: 1rem 1rem;
+    }
+    
+    /* ASEGURAR QUE EL CONTENIDO PRINCIPAL SEA TRANSPARENTE */
+    .st-emotion-cache-uf99v8 {
+        background: transparent;
     }
     </style>
     """,
@@ -180,24 +145,21 @@ st.markdown(
 )
 
 # ===== ENCABEZADO MEJORADO =====
-col1, col2 = st.columns([1, 3])
-with col1:
-    st.image("assets/Logo.png", width=280)
-with col2:
-    st.markdown(
-        """
-        <div class="header-box">
-        <h1 style="margin:0; text-align:center; color: white !important; font-size: 2.5rem; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
+st.markdown(
+    """
+    <div style='text-align: center; padding: 20px 0;'>
+        <img src="/assets/Logo.png" width="300" style='margin-bottom: 20px;'>
+        <h1 style='color: white; font-size: 2.8rem; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin: 10px 0;'>
         📊 PROVISION CARTERA USA
         </h1>
-        <p style="margin:10px 0 0 0; text-align:center; color: white !important; font-size: 1.2rem; font-weight: 600; text-shadow: 1px 1px 3px rgba(0,0,0,0.6);">
+        <p style='color: white; font-size: 1.3rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.6); margin: 0;'>
         Dashboard de Análisis y Gestión
         </p>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ===== CARGA DE DATOS =====
 @st.cache_data
 def cargar_datos():
@@ -481,12 +443,13 @@ fig_linea.update_traces(
 )
 
 fig_linea.update_layout(
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)',
+    plot_bgcolor='white',
+    paper_bgcolor='white',
     font=dict(color='black', size=12),
     xaxis=dict(
         title_text="Mes",
-        showgrid=False,
+        showgrid=True,
+        gridcolor='rgba(0,0,0,0.1)',
         tickfont=dict(color='black')
     ),
     yaxis=dict(
@@ -539,11 +502,11 @@ with col_pie1:
     fig_pie_ant.update_traces(
         textposition='inside', 
         textinfo='percent+label',
-        textfont=dict(color='white', size=12)
+        textfont=dict(color='black', size=11)
     )
     fig_pie_ant.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='white',
+        paper_bgcolor='white',
         font=dict(color='black'),
         title=dict(font=dict(color='black')),
         legend=dict(font=dict(color='black'))
@@ -561,12 +524,12 @@ with col_pie2:
     fig_pie_act.update_traces(
         textposition='inside', 
         textinfo='percent+label',
-        textfont=dict(color='black', size=12)
+        textfont=dict(color='black', size=11)
     )
     fig_pie_act.update_layout(
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(0,0,0,0)',
-        font=dict(color='white'),
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        font=dict(color='black'),
         title=dict(font=dict(color='black')),
         legend=dict(font=dict(color='black'))
     )
@@ -576,7 +539,7 @@ with col_pie2:
 st.markdown("---")
 st.markdown(
     """
-    <div style='text-align: center; color: #cccccc; padding: 20px;'>
+    <div style='text-align: center; color: white; padding: 20px;'>
         <p style='margin: 0; font-size: 0.9rem;'>📊 <strong>Provision Cartera USA</strong> | Desarrollado en Streamlit</p>
         <p style='margin: 5px 0 0 0; font-size: 0.8rem;'>© 2025 - Dashboard de provisiones contables</p>
     </div>
