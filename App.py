@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 
 # ===== CONFIGURACIÓN DE LA PÁGINA =====
 st.set_page_config(page_title="Provision cartera USA", layout="wide")
+COLOR_PALETTE = ['#1B5E20', '#388E3C', '#8BC34A', '#F4E3B2', '#E57373']
 
 # ===== CSS: fondo e identidad de colores (verde/blanco/gris) =====
 st.markdown(
@@ -12,7 +13,7 @@ st.markdown(
     <style>
     /* Fondo usando la imagen en assets (overlay blanco para legibilidad) */
     .stApp {
-        background-image: url("assets/Fondo.jpg");
+        background-image: url("./assets/Fondo.jpg");
         background-size: cover;
         background-attachment: fixed;
         background-repeat: no-repeat;
@@ -21,7 +22,7 @@ st.markdown(
         content: "";
         position: absolute;
         inset: 0;
-        background-color: rgba(255,255,255,0.88); /* overlay blanco predominante */
+        background-color: rgba(255,255,255,0.75); /* overlay blanco predominante */
         z-index: 0;
     }
     /* Header box para mejor legibilidad sobre el fondo */
@@ -32,20 +33,22 @@ st.markdown(
         z-index: 1;
     }
     /* Títulos y textos */
-    h1, h2, h3, h4, h5, h6 { color: #2E7D32 !important; } /* verde primario */
+    h1, h2, h3, h4, h5, h6 { color: #1B5E20 !important; font-weight: 700; }
     p, span, div, label { color: #212121 !important; } /* texto oscuro */
     /* Métricas y tarjetas */
     .stMetric {
-        background-color: #ffffffaa;
-        border: 1px solid #E0E0E0;
-        border-radius: 8px;
-        padding: 6px;
+    background-color: #ffffffcc;
+    border: 1px solid #E0E0E0;
+    border-radius: 10px;
+    padding: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
     /* Gráficos con fondo blanco */
     .js-plotly-plot {
-        background-color: rgba(255,255,255,0.95) !important;
-        border-radius: 8px;
+        background-color: rgba(255,255,255,0) !important;
+        border-radius: 10px;
         padding: 6px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1)
     }
     </style>
     """,
@@ -53,9 +56,9 @@ st.markdown(
 )
 
 # ===== ENCABEZADO CON LOGO (logo más grande) =====
-col1, col2 = st.columns([1, 5])
+col1, col2 = st.columns([1.5, 5])
 with col1:
-    st.image("assets/Logo.png", width=300)  # logo más grande
+    st.image("assets/Logo.png", width=380)  # logo más grande
 with col2:
     st.markdown(
         """
@@ -354,7 +357,7 @@ fig_linea = px.line(
     y='Total Provision',
     markers=True,
     title="Evolución mensual de la Provisión Total",
-    color_discrete_sequence=['#0072B2']
+    color_discrete_sequence= COLOR_PALETTE
 )
 fig_linea.update_traces(line=dict(width=4), marker=dict(size=8))
 fig_linea.update_yaxes(
@@ -399,13 +402,13 @@ col_pie1, col_pie2 = st.columns(2)
 with col_pie1:
     fig_pie_ant = px.pie(df_pie_ant, values='Total', names='Rango',
                          title=f"Mes Anterior ({fecha_ant.strftime('%Y-%m')})",
-                         color_discrete_sequence=px.colors.qualitative.Pastel)
+                         color_discrete_sequence=COLOR_PALETTE)
     st.plotly_chart(fig_pie_ant, use_container_width=True)
 with col_pie2:
     fig_pie_act = px.pie(df_pie_act, values='Total', names='Rango',
                          title=f"Mes Seleccionado ({año_sel}-{mes_sel:02d})",
-                         color_discrete_sequence=px.colors.qualitative.Pastel)
+                         color_discrete_sequence=COLOR_PALETTE)
     st.plotly_chart(fig_pie_act, use_container_width=True)
 
 st.markdown("---")
-st.caption("Desarrollado en Streamlit – Dashboard Provisiones © 2025")
+st.caption("Desarrollado en Streamlit – Dashboard Provisiones © 2025")import pandas as pd
