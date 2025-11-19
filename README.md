@@ -70,15 +70,13 @@ provision-cartera-usa/
 
 🧠 Próximos pasos
 
-🔹 Incorporar filtros dinámicos (por cliente, tipo de cliente, etc.)
-🔹 Añadir más rangos de provisión personalizados.
-🔹 Implementar descarga de reportes en Excel o PDF.
-🔹 Mejorar el diseño visual de los gráficos y métricas.
-🔹 Automatizar la actualización de datos desde una fuente en línea.
+♠ Cambiar el color de la tabla para que se vea acorde en la pagina
+♠ Manejo de datos adicionales dentro de la tabla
+♠ pendiente aprobacion y mas cambios en verificacion.
 
 📅 Estado actual
 
-Versión: 0.1 (en desarrollo)
+Versión: 0.5 (en desarrollo)
 Última actualización: noviembre 2025
 
 🧑‍💻 Autor
