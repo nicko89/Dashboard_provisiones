@@ -1,158 +1,200 @@
-import pandas as pd
+## ---- Actualización Grid a 11/19 ---- ##
+
 import streamlit as st
+import pandas as pd
 import plotly.express as px
 from dateutil.relativedelta import relativedelta
 
 # ===== CONFIGURACIÓN DE LA PÁGINA =====
 st.set_page_config(page_title="Provision Cartera USA", layout="wide")
 
-# ===== CSS MEJORADO - FONDO OSCURO =====
+# ===== CSS PROFESIONAL =====
 st.markdown(
     """
     <style>
-    /* Fondo usando la imagen proporcionada */
+
+    /* Fondo con imagen */
     .stApp {
-        background-image: url("/assets/Fondo.jpg");
+        background-image: url("https://github.com/nicko89/Dashboard_provisiones/blob/main/assets/Fondo.jpg?raw=true");
         background-size: cover;
         background-attachment: fixed;
         background-repeat: no-repeat;
     }
-    
-    /* Overlay oscuro para mejor legibilidad */
-    .stApp::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background-color: rgba(0,0,0,0.85);
-        z-index: 0;
+
+    /* Contenido principal transparente */
+    .main .block-container {
+        background: transparent !important;
     }
-    
-    /* Header mejorado */
-    .header-box {
-        background: rgba(255,255,255,0.95);
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 5px solid #2E7D32;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        text-align: center;
-        margin-bottom: 10px;
+
+    /* Sidebar limpio y legible */
+    section[data-testid="stSidebar"] {
+        background-color: #FFFFFF !important;
+        color: #333333 !important;
+        border-right: 1px solid #E0E0E0;
+        box-shadow: 0 0 24px rgba(0,0,0,0.06);
     }
-    
-    /* Títulos en blanco */
-    h1, h2, h3, h4, h5, h6 { 
-        color: white !important; 
-        font-weight: 600 !important;
+    section[data-testid="stSidebar"] .stMarkdown h1,
+    section[data-testid="stSidebar"] .stMarkdown h2,
+    section[data-testid="stSidebar"] .stMarkdown h3 {
+        color: #2E7D32 !important;
+        margin-bottom: 8px;
     }
-    
-    /* Texto general en blanco */
-    p, span, div, label, .stMarkdown, .stSubheader { 
-        color: white !important; 
+    section[data-testid="stSidebar"] .stMarkdown p,
+    section[data-testid="stSidebar"] label {
+        color: #333333 !important;
     }
-    
-    /* Métricas con fondo oscuro */
+
+    /* Texto global */
+    h1, h2, h3, h4, h5, h6, p, label, .stMarkdown, .stSubheader {
+        color: #000000 !important;
+    }
+    .stSubheader, h2 {
+        color: #2E7D32 !important;
+    }
+
+    /* Métricas */
     [data-testid="metric-container"] {
-        background: rgba(30,30,30,0.9) !important;
-        border: 1px solid #444;
+        background: rgba(255,255,255,0.95) !important;
+        border: 1px solid #D7CCC8 !important;
         border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        padding: 8px 10px;
+        color: #000000 !important; /* texto visible */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
-    
-    /* Labels de métricas en blanco */
-    [data-testid="metric-label"] {
-        color: white !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Valores de métricas en blanco */
+
+    [data-testid="stMetricValue"], 
     [data-testid="metric-value"] {
-        color: white !important;
-        font-weight: 700 !important;
+        color: #000000 !important; /* valor visible */
+        font-weight: 600; !important;
+        font-size: 2rem !important;
     }
-    
-    /* Delta de métricas */
-    [data-testid="metric-delta"] {
-        color: #81C784 !important;
-        font-weight: 600 !important;
+
+    [data-testid="stMetricLabel"] {
+        color: #333333 !important; /* etiqueta visible */
     }
-    
-    /* Gráficos sin fondo y texto en negro */
+
+    /* Inputs y filtros */
+    .stTextInput input,
+    .stSelectbox select,
+    .stSelectbox span {
+        background-color: #FFFFFF !important;
+        color: #333333 !important;
+        border: 1px solid #66BB6A !important;
+        border-radius: 8px;
+    }
+    .stTextInput input:focus,
+    .stSelectbox select:focus {
+        border-color: #2E7D32 !important;
+        box-shadow: 0 0 0 3px rgba(46,125,50,0.20) !important;
+        outline: none !important;
+    }
+    div[data-baseweb="select"] > div,
+    div[role="listbox"],
+    div[role="combobox"] > div,
+    div[role="combobox"] > input,
+    div[role="option"] {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 1px solid #66BB6A !important;
+    border-radius: 8px !important;
+}
+    /* Botones */
+    .stButton button {
+        background-color: #2E7D32 !important;
+        color: #FFFFFF !important;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 18px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(27,94,32,0.25);
+    }
+    .stButton button:hover {
+        background-color: #1B5E20 !important;
+        transform: translateY(-1px);
+    }
+
+    /* Gráficos transparentes */
     .js-plotly-plot, .plotly {
         background-color: transparent !important;
-        border-radius: 10px;
     }
-    
-    /* Títulos de gráficos en blanco */
-    .gtitle, .xtitle, .ytitle {
-        color: black !important;
-        font-weight: 600 !important;
+
+    /* Tablas limpias y legibles */
+    table {
+        background-color: transparent !important;
+        border-collapse: collapse !important;
+        width: 100%;
     }
-    
-    /* Sidebar con texto blanco */
-    .css-1d391kg, .css-1lcbmhc {
-        background-color: rgba(40,40,40,0.9) !important;
+    thead th {
+        background-color: rgba(245, 245, 245, 0.9) !important;
+        color: #2E7D32 !important;
+        font-weight: 600;
+        padding: 10px;
+        border: 1px solid #D7CCC8;
     }
-    
-    .sidebar .sidebar-content {
-        color: white !important;
+    tbody td {
+        background-color: rgba(255, 255, 255, 0.85) !important;
+        color: #1B1B1B !important;
+        padding: 10px;
+        border: 1px solid #D7CCC8;
     }
-    
-    /* Texto del sidebar en blanco */
-    .stSidebar h1, .stSidebar h2, .stSidebar h3, 
-    .stSidebar p, .stSidebar label, .stSidebar div {
-        color: white !important;
+
+    /* ===== FIX DEFINITIVO PARA NUEVO st.dataframe ===== */
+
+    /* Fondo del grid */
+    div[data-testid="data-grid"] {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
     }
-    
-    /* Inputs del sidebar */
-    .stTextInput input, .stSelectbox select, .stSelectbox span {
-        color: white !important;
-        background-color: rgba(60,60,60,0.9) !important;
-        border: 1px solid #666 !important;
-        border-radius: 6px;
+
+    /* Header */
+    div[data-testid="data-grid"] .ag-header-container,
+    div[data-testid="data-grid"] .ag-header-row,
+    div[data-testid="data-grid"] .ag-header-cell {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border-color: #D7CCC8 !important;
     }
-    
-    /* Dataframe con fondo oscuro */
-    .dataframe {
-        background-color: rgba(30,30,30,0.9) !important;
-        color: white !important;
-        border-radius: 8px;
-        border: 1px solid #444;
+
+    /* Celdas */
+    div[data-testid="data-grid"] .ag-cell {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border-color: #E0E0E0 !important;
     }
-    
-    /* Botones mejorados */
-    .stButton button {
-        background-color: #2E7D32;
-        color: white;
-        border-radius: 6px;
-        border: none;
-        padding: 8px 16px;
-        font-weight: 500;
+
+    /* Bordes */
+    div[data-testid="data-grid"] .ag-root-wrapper {
+        background-color: #FFFFFF !important;
+        border: 1px solid #D7CCC8 !important;
     }
-    
-    .stButton button:hover {
-        background-color: #1B5E20;
-        color: white;
+
+    /* Scrollbars */
+    div[data-testid="data-grid"] ::-webkit-scrollbar {
+        width: 8px;
     }
-    
-    /* Separadores */
-    .stMarkdown hr {
-        margin: 2rem 0;
-        border: none;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #2E7D32, transparent);
+    div[data-testid="data-grid"] ::-webkit-scrollbar-thumb {
+        background: #BDBDBD;
+        border-radius: 4px;
     }
+
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# ===== PALETA DE COLORES PARA GRÁFICOS =====
-COLOR_PALETTE = ['#2E7D32', '#4CAF50', '#81C784', '#C8E6C9', '#1B5E20']
+# ===== PALETA DE COLORES =====
+COLOR_PALETTE = [
+    "#2E7D32",  # Verde hoja (principal)
+    "#66BB6A",  # Verde claro (fresco)
+    "#FFD54F",  # Dorado suave (acentos cálidos)
+    "#E57373",  # Rosa floral (alertas o destacados)
+    "#D7CCC8",  # Beige arena (fondo suave o métricas)
+]
 
-# ===== ENCABEZADO MEJORADO =====
-col1, col2 = st.columns([1, 3])
+# ===== ENCABEZADO =====
+col1, col2 = st.columns([1.2, 3])
 with col1:
-    st.image("assets/Logo.png", width=250)
+    st.image("assets/Logo.png", width=350)
 with col2:
     st.markdown(
         """
@@ -229,7 +271,7 @@ df['Mes'] = df['Fecha'].dt.month
 df['AñoMes'] = df['Fecha'].dt.to_period('M')
 df['AñoMes_str'] = df['AñoMes'].astype(str)
 
-# ===== SIDEBAR MEJORADO =====
+# ===== SIDEBAR =====
 with st.sidebar:
     st.markdown("### 🗓️ Filtros de Periodo")
     año_sel = st.selectbox("Seleccionar año:", sorted(df['Año'].unique(), reverse=True))
@@ -238,35 +280,44 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### 🔍 Buscador")
+
+    # Inicializar valores en session_state antes de los widgets
     if 'busqueda' not in st.session_state:
         st.session_state['busqueda'] = ''
-    
+    if 'cliente_detalle' not in st.session_state:
+        st.session_state['cliente_detalle'] = 'Todos'
+
     clientes_list = sorted(df['Customer'].dropna().unique().tolist())
     cliente_options = ['Todos'] + clientes_list
     
-    st.text_input("Buscar Cliente o Infor Code:", key='busqueda', placeholder="Escribe para buscar...")
-    
+    st.text_input("Buscar Cliente o Infor Code:", 
+                  key='busqueda', 
+                  placeholder="Escribe para buscar...")
+
     st.markdown("### 👥 Selección de Cliente")
     st.selectbox("Seleccionar Cliente:", cliente_options, key='cliente_detalle')
-    
+
+    # ✅ Usar callback para limpiar filtros
     def _clear_filters():
         st.session_state['busqueda'] = ''
         st.session_state['cliente_detalle'] = 'Todos'
-    
-    if st.button("🧹 Limpiar Filtros", use_container_width=True):
-        _clear_filters()
-        st.rerun()
 
+    st.button("🧹 Limpiar Filtros", 
+              use_container_width=True, 
+              on_click=_clear_filters)
+
+# Acceso seguro a los valores
 busqueda = st.session_state.get('busqueda', '')
 cliente_detalle = st.session_state.get('cliente_detalle', 'Todos')
+
 
 # ===== FILTRADO PRINCIPAL POR AÑO/MES =====
 df_filtrado = df[(df['Año'] == año_sel) & (df['Mes'] == mes_sel)].copy()
 
 if busqueda:
     df_filtrado = df_filtrado[
-        df_filtrado['Customer'].str.contains(busqueda, case=False, na=False) |
-        df_filtrado['Infor Code'].str.contains(busqueda, case=False, na=False)
+        df_filtrado['Customer'].astype(str).str.contains(busqueda, case=False, na=False) |
+        df_filtrado['Infor Code'].astype(str).str.contains(busqueda, case=False, na=False)
     ]
 
 if cliente_detalle and cliente_detalle != 'Todos':
@@ -279,8 +330,8 @@ df_mes_ant = df[(df['Fecha'].dt.year == fecha_ant.year) & (df['Fecha'].dt.month 
 
 if busqueda:
     df_mes_ant = df_mes_ant[
-        df_mes_ant['Customer'].str.contains(busqueda, case=False, na=False) |
-        df_mes_ant['Infor Code'].str.contains(busqueda, case=False, na=False)
+        df_mes_ant['Customer'].astype(str).str.contains(busqueda, case=False, na=False) |
+        df_mes_ant['Infor Code'].astype(str).str.contains(busqueda, case=False, na=False)
     ]
 if cliente_detalle and cliente_detalle != 'Todos':
     df_mes_ant = df_mes_ant[df_mes_ant['Customer'] == cliente_detalle].copy()
@@ -291,173 +342,95 @@ total_anterior = df_mes_ant['Total Provision'].sum() if not df_mes_ant.empty els
 variacion_abs = total_actual - total_anterior
 variacion_pct = (variacion_abs / total_anterior * 100) if total_anterior != 0 else 0.0
 
-# ===== CÁLCULO DE WRITE OFF MEJORADO (basado en tu DAX) =====
+# ===== CÁLCULO DE WRITE OFFS =====
 writeoffs_mes = 0
-
 if not df_write.empty:
-    # Limpiar columnas
-    cols = [c.strip() for c in df_write.columns.tolist()]
-    df_write.columns = cols
-    
-    # Buscar columnas relevantes
-    date_col = next((c for c in cols if any(x in c.lower() for x in ['date', 'fecha'])), None)
-    amount_col = next((c for c in cols if any(x in c.lower() for x in ['amount', 'monto', 'valor', 'credit', 'debit'])), None)
-    cust_col = next((c for c in cols if any(x in c.lower() for x in ['cust', 'vendor', 'customer', 'name'])), None)
+    df_write.columns = [c.strip() for c in df_write.columns.tolist()]
+    date_col = next((c for c in df_write.columns if any(x in c.lower() for x in ['date','fecha'])), None)
+    amount_col = next((c for c in df_write.columns if any(x in c.lower() for x in ['amount','monto','valor','credit','debit'])), None)
+    cust_col = next((c for c in df_write.columns if any(x in c.lower() for x in ['cust','vendor','customer','name'])), None)
     
     if date_col and amount_col:
-        # Convertir fecha
         df_write[date_col] = pd.to_datetime(df_write[date_col], errors='coerce')
+        df_write_mes = df_write[(df_write[date_col].dt.year == año_sel) & (df_write[date_col].dt.month == mes_sel)].copy()
         
-        # Filtrar por mes seleccionado
-        df_write_mes = df_write[
-            (df_write[date_col].dt.year == año_sel) & 
-            (df_write[date_col].dt.month == mes_sel)
-        ].copy()
-        
-        # Aplicar filtros similares a DAX
         if cust_col:
-            # Excluir INT y vacíos
-            df_write_mes = df_write_mes[
-                df_write_mes[cust_col].notna() &
-                ~df_write_mes[cust_col].astype(str).str.strip().str[:3].str.upper().eq('INT')
-            ]
-            
-            # Si hay filtro por cliente, aplicar
+            df_write_mes = df_write_mes[df_write_mes[cust_col].notna()]
+            df_write_mes[cust_col] = df_write_mes[cust_col].astype(str)  # ✅ Corrección para evitar error .str
             if cliente_detalle and cliente_detalle != 'Todos':
-                df_write_mes = df_write_mes[
-                    df_write_mes[cust_col].astype(str).str.strip().str.upper() == 
-                    cliente_detalle.strip().upper()
-                ]
+                df_write_mes = df_write_mes[df_write_mes[cust_col].str.upper() == cliente_detalle.strip().upper()]
             elif busqueda:
-                # Filtrar por búsqueda
-                df_write_mes = df_write_mes[
-                    df_write_mes[cust_col].str.contains(busqueda, case=False, na=False)
-                ]
+                df_write_mes = df_write_mes[df_write_mes[cust_col].str.contains(busqueda, case=False, na=False)]
         
-        # Calcular suma
         df_write_mes[amount_col] = pd.to_numeric(df_write_mes[amount_col], errors='coerce').fillna(0)
         writeoffs_mes = df_write_mes[amount_col].sum()
 
-# Formatear texto de Write Offs (igual que tu DAX)
-if writeoffs_mes == 0 or pd.isna(writeoffs_mes):
-    writeoffs_texto = "Sin Write offs"
-else:
-    writeoffs_texto = f"${writeoffs_mes:,.0f}"
+writeoffs_texto = "Sin Write offs" if writeoffs_mes == 0 or pd.isna(writeoffs_mes) else f"${writeoffs_mes:,.0f}"
 
-# ===== MÉTRICAS REORGANIZADAS =====
+# ===== MÉTRICAS =====
 st.markdown(f"### 📊 Resumen - {mes_sel}/{año_sel}")
-
-# Primera línea - Año y Mes
 col1, col2, col3, col4 = st.columns(4)
-with col1:
-    st.metric("🗓️ Año", año_sel)
-with col2:
-    st.metric("📅 Mes", mes_sel)
-with col3:
-    # Espacio vacío
-    st.write("")
-with col4:
-    # Espacio vacío
-    st.write("")
+with col1: st.metric("🗓️ Año", año_sel)
+with col2: st.metric("📅 Mes", mes_sel)
+with col3: st.write("")
+with col4: st.write("")
 
-# Segunda línea - Métricas financieras
 col5, col6, col7, col8 = st.columns(4)
-with col5:
-    st.metric("💰 Mes Anterior", f"${total_anterior:,.0f}")
-with col6:
-    st.metric("💸 Write Offs", writeoffs_texto)
-with col7:
-    st.metric("💰 Mes Actual", f"${total_actual:,.0f}")
+with col5: st.metric("💰 Mes Anterior", f"${total_anterior:,.0f}")
+with col6: st.metric("💸 Write Offs", writeoffs_texto)
+with col7: st.metric("💰 Mes Actual", f"${total_actual:,.0f}")
 with col8:
-    # Mostrar variación absoluta y porcentual
-    delta_text = f"${variacion_abs:,.0f} | {variacion_pct:+.1f}%"
-    st.metric("📈 Variación", f"${variacion_abs:,.0f}", delta=f"{variacion_pct:+.1f}%")
+    st.metric("📈 Variación", f"${variacion_abs:,.0f}")
+
+    variacion_text = f"{variacion_pct:+.1f}%"
+    if variacion_pct < 0:
+        st.markdown(f"<div style='color:#1B5E20; font-weight:700; font-size:1.1rem; margin-top:6px;'>↓ {variacion_text}</div>", unsafe_allow_html=True)
+    else:
+        st.markdown(f"<div style='color:#B71C1C; font-weight:700; font-size:1.1rem; margin-top:6px;'>↑ {variacion_text}</div>", unsafe_allow_html=True)
 
 st.markdown("---")
 
 # ===== TABLA DE CLIENTES =====
-st.subheader(f"📋 Detalle de Provisiones por Cliente")
+st.subheader(f"📋 Total de Provisiones - {año_sel}-{mes_sel:02d}")
 df_tabla = df_filtrado.groupby(['Infor Code', 'Customer'], as_index=False)['Total Provision'].sum()
+# evitar división por cero si suma = 0
 suma_total_prov = df_tabla['Total Provision'].sum()
 df_tabla['% del Total'] = (df_tabla['Total Provision'] / suma_total_prov * 100) if suma_total_prov != 0 else 0
 
-# Ordenar por provision descendente
-df_tabla = df_tabla.sort_values('Total Provision', ascending=False)
-
-# Aplicar formato
-styled_df = df_tabla.style.format({
-    "Total Provision": "${:,.2f}",
-    "% del Total": "{:.2f}%"
-})
-
 st.dataframe(
-    styled_df,
-    use_container_width=True,
-    height=400
+    df_tabla.style.format({
+        "Total Provision": "${:,.2f}",
+        "% del Total": "{:.2f}%"
+    })
 )
 
 st.markdown("---")
 
-# ===== EVOLUCIÓN DE LOS ÚLTIMOS 5 MESES =====
+# ===== GRÁFICO DE LÍNEA =====
 periodo_sel = pd.Period(fecha_sel, freq='M')
-ultimos_5 = [periodo_sel - i for i in range(4, -1, -1)]
+ultimos_5 = [periodo_sel - i for i in range(4,-1,-1)]
 df_ultimos_5 = df[df['AñoMes'].isin(ultimos_5)].copy()
-
 if busqueda:
-    df_ultimos_5 = df_ultimos_5[
-        df_ultimos_5['Customer'].str.contains(busqueda, case=False, na=False) |
-        df_ultimos_5['Infor Code'].str.contains(busqueda, case=False, na=False)
-    ]
+    df_ultimos_5 = df_ultimos_5[df_ultimos_5['Customer'].astype(str).str.contains(busqueda, case=False, na=False) |
+                                df_ultimos_5['Infor Code'].astype(str).str.contains(busqueda, case=False, na=False)]
 if cliente_detalle and cliente_detalle != 'Todos':
     df_ultimos_5 = df_ultimos_5[df_ultimos_5['Customer'] == cliente_detalle].copy()
 
-df_agrupado = (
-    df_ultimos_5
-    .groupby('AñoMes', as_index=False)['Total Provision']
-    .sum()
-    .sort_values('AñoMes')
-)
+df_agrupado = df_ultimos_5.groupby('AñoMes', as_index=False)['Total Provision'].sum().sort_values('AñoMes')
 df_agrupado['AñoMes_label'] = df_agrupado['AñoMes'].dt.to_timestamp().dt.strftime('%b %Y')
 
-# Gráfico de línea sin fondo
-fig_linea = px.line(
-    df_agrupado,
-    x='AñoMes_label',
-    y='Total Provision',
-    markers=True,
-    title="Evolución Mensual de la Provisión Total",
-    color_discrete_sequence=[COLOR_PALETTE[0]]
-)
-
-# Configurar gráfico sin fondo
-fig_linea.update_traces(
-    line=dict(width=4), 
-    marker=dict(size=8),
-    hovertemplate="<b>%{x}</b><br>Provision: $%{y:,.0f}<extra></extra>"
-)
-
-fig_linea.update_layout(
-    plot_bgcolor='rgba(0,0,0,0)',
-    paper_bgcolor='rgba(0,0,0,0)',
-    font=dict(color='black', size=12),
-    xaxis=dict(
-        title_text="Mes",
-        showgrid=False,
-        tickfont=dict(color='black')
-    ),
-    yaxis=dict(
-        title_text="Total Provision ($)",
-        tickformat=",",
-        showgrid=True,
-        gridcolor='rgba(128,128,128,0.2)',
-        tickfont=dict(color='black')
-    ),
-    title=dict(
-        font=dict(color='black', size=16)
-    ),
-    margin=dict(l=40, r=20, t=60, b=40)
-)
-
+fig_linea = px.line(df_agrupado, x='AñoMes_label', y='Total Provision',
+                    markers=True, title="Evolución Mensual de la Provisión Total",
+                    color_discrete_sequence=[COLOR_PALETTE[0]])
+fig_linea.update_traces(line=dict(width=4), marker=dict(size=8),
+                        hovertemplate="<b>%{x}</b><br>Provision: $%{y:,.0f}<extra></extra>")
+fig_linea.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+                        font=dict(color='black', size=12),
+                        xaxis=dict(title_text="Mes", showgrid=False, tickfont=dict(color='black')),
+                        yaxis=dict(title_text="Total Provision ($)", tickformat=",", showgrid=True,
+                                   gridcolor='rgba(128,128,128,0.2)', tickfont=dict(color='black')),
+                        title=dict(font=dict(color='black', size=16)),
+                        margin=dict(l=40,r=20,t=60,b=40))
 st.subheader("📈 Evolución de Total Provision (Últimos 5 meses)")
 st.plotly_chart(fig_linea, use_container_width=True)
 
@@ -530,10 +503,12 @@ with col_pie2:
 st.markdown("---")
 st.markdown(
     """
-    <div style='text-align: center; color: #cccccc; padding: 20px;'>
-        <p style='margin: 0; font-size: 0.9rem;'>📊 <strong>Provision Cartera USA</strong> | Desarrollado en Streamlit</p>
+    <div style='text-align: center; color: #666666; padding: 20px;'>
+        <p style='margin: 0; font-size: 0.9rem;'>📊 <strong>Provision Cartera USA</strong> | Reporte Gerencial en Streamlit</p>
         <p style='margin: 5px 0 0 0; font-size: 0.8rem;'>© 2025 - Dashboard de provisiones contables</p>
     </div>
     """,
     unsafe_allow_html=True
 )
+
+
