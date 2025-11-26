@@ -19,7 +19,7 @@ st._config.set_option("theme.textColor", "#000000")
 
 # ===== Contraseña =====
 
-PASSWORD = st.secrets["PASSWORD"]   
+PASSWORD = st.secrets.get("PASSWORD","Deco.2025*")   
 
 def login_screen():
     placeholder = st.empty()   
