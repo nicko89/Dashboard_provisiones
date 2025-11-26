@@ -1,12 +1,248 @@
-## ---- Actualización Grid a 11/19 ---- ##
-
-import streamlit as st
+import streamlit as st 
 import pandas as pd
 import plotly.express as px
 from dateutil.relativedelta import relativedelta
 
 # ===== CONFIGURACIÓN DE LA PÁGINA =====
-st.set_page_config(page_title="Provision Cartera USA", layout="wide")
+st.set_page_config(
+    page_title="Provision Cartera USA", 
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# ===== FORZAR TEMA CLARO =====
+st._config.set_option("theme.base", "light")
+st._config.set_option("theme.primaryColor", "#2E7D32")
+st._config.set_option("theme.backgroundColor", "#FFFFFF")
+st._config.set_option("theme.secondaryBackgroundColor", "#F5F5F5")
+st._config.set_option("theme.textColor", "#000000")
+
+# ===== Contraseña =====
+
+PASSWORD = st.secrets["PASSWORD"]   
+
+def login_screen():
+    placeholder = st.empty()   
+
+    with placeholder.container():
+        st.markdown("## 🔐 Acceso restringido")
+        password = st.text_input("Introduce la contraseña:", type="password")
+        entrar = st.button("Entrar")
+
+    if entrar:
+        if password == PASSWORD:
+            st.session_state["logged_in"] = True
+            placeholder.empty() 
+            return True
+        else:
+            st.error("❌ Contraseña incorrecta")
+
+    return False
+
+
+# ===== VERIFICACIÓN =====
+if not st.session_state.get("logged_in"):
+    if not login_screen():
+        st.stop() 
+
+# ===== CSS ESTABLE + FORZAR TEMA CLARO =====
+st.markdown("""
+<style>
+
+    /* ===============================================
+       1. FORZAR TEMA CLARO (SIN ROMPER STREAMLIT)
+       =============================================== */
+    
+    html, body {
+        color-scheme: light !important;
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        html, body {
+            color-scheme: light !important;
+            background-color: #FFFFFF !important;
+            color: #000000 !important;
+        }
+    }
+
+    /* ===============================================
+       2. FONDO GENERAL
+       =============================================== */
+
+    .stApp {
+        background-image: url("https://github.com/nicko89/Dashboard_provisiones/blob/main/assets/Fondo.jpg?raw=true");
+        background-size: cover;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+    }
+
+    .main .block-container {
+        background: transparent !important;
+    }
+
+    /* ===============================================
+       3. SIDEBAR
+       =============================================== */
+
+    section[data-testid="stSidebar"] {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+        border-right: 1px solid #E0E0E0 !important;
+    }
+
+    /* ===============================================
+       4. TEXTO GENERALES
+       =============================================== */
+
+    h1, h2, h3, h4, h5, h6,
+    p, label, .stMarkdown, .stSubheader {
+        color: #000000 !important;
+    }
+
+    .stSubheader {
+        color: #2E7D32 !important;
+    }
+
+    /* ===============================================
+       5. MÉTRICAS
+       =============================================== */
+
+    [data-testid="metric-container"] {
+        background: #FFFFFF !important;
+        border: 1px solid #D7CCC8 !important;
+        border-radius: 8px;
+        padding: 8px 16px;
+    }
+
+    [data-testid="stMetricValue"],
+    [data-testid="metric-value"] {
+        color: #000000 !important;
+        font-weight: 600 !important;
+    }
+
+/* ===============================================
+   6. TABLAS — FIX DEFINITIVO STREAMLIT 1.51 + AG-GRID
+   =============================================== */
+
+/* Contenedor de la tabla */
+div[data-testid="stDataFrame"] {
+    background-color: #FFFFFF !important;
+    padding: 4px !important;
+    border-radius: 8px !important;
+}
+
+/* Fondo del wrapper */
+div[data-testid="stDataFrame"] .ag-root-wrapper {
+    background-color: #FFFFFF !important;
+    border-radius: 8px !important;
+    border: 1px solid #E0E0E0 !important;
+}
+
+/* HEADER */
+div[data-testid="stDataFrame"] .ag-header,
+div[data-testid="stDataFrame"] .ag-header-cell,
+div[data-testid="stDataFrame"] .ag-header-row {
+    background-color: #F5F5F5 !important;
+    color: #2E7D32 !important;
+    font-weight: 600 !important;
+    border-color: #D7CCC8 !important;
+}
+
+/* CELDAS */
+div[data-testid="stDataFrame"] .ag-cell {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border-color: #E6E6E6 !important;
+}
+
+/* CELDAS FILA IMPAR */
+div[data-testid="stDataFrame"] .ag-row-odd .ag-cell {
+    background-color: #FAFAFA !important;
+}
+
+/* TEXTO DE TODA LA TABLA */
+div[data-testid="stDataFrame"] * {
+    color: #000000 !important;
+}
+
+    /* ===============================================
+       7. PLOTLY — gráficos sin fondo oscuro
+       =============================================== */
+
+    .js-plotly-plot .plot-container .svg-container {
+        background-color: rgba(255, 255, 255, 0) !important;
+    }
+
+            /* ================================
+   SELECTBOX (nuevo motor BaseWeb)
+   ================================ */
+
+/* Contenedor del select */
+div[data-baseweb="select"] > div {
+    border: 2px solid #2E7D32 !important;     /* Color del borde */
+    border-radius: 8px !important;            /* Bordes redondeados */
+    background-color: #FFFFFF !important;     
+    color: #000000 !important;
+}
+
+/* Al pasar el mouse */
+div[data-baseweb="select"] > div:hover {
+    border-color: #1B5E20 !important;
+}
+
+/* Al hacer foco (click) */
+div[data-baseweb="select"] > div:focus-within {
+    box-shadow: 0 0 0 3px rgba(46,125,50,0.25) !important;
+    border-color: #1B5E20 !important;
+}
+
+/* ================================
+   TEXT INPUT
+   ================================ */
+
+input[type="text"], textarea {
+    border: 2px solid #2E7D32 !important;
+    border-radius: 8px !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    padding: 6px !important;
+}
+
+input[type="text"]:focus, textarea:focus {
+    border-color: #1B5E20 !important;
+    box-shadow: 0 0 0 3px rgba(46,125,50,0.25) !important;
+    outline: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+# ===== PALETA DE COLORES =====
+COLOR_PALETTE = [
+    "#2E7D32",  # Verde hoja (principal)
+    "#66BB6A",  # Verde claro
+    "#FFD54F",  # Dorado suave
+    "#E57373",  # Rosa floral
+    "#D7CCC8",  # Beige arena
+]
+
+# ===== ENCABEZADO =====
+col1, col2 = st.columns([1.2, 3])
+with col1:
+    st.image("assets/Logo.png", width= 400)
+with col2:
+    st.markdown(
+        """
+        <div class="header-box">
+        <h1 style="margin:0; text-align:center; color: #1B5E20 !important; font-size: 3.2rem;">
+        📊 Provision Cartera USA
+        </h1>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 # ===== CSS PROFESIONAL =====
 st.markdown(
@@ -431,7 +667,8 @@ fig_linea.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,
                                    gridcolor='rgba(128,128,128,0.2)', tickfont=dict(color='black')),
                         title=dict(font=dict(color='black', size=16)),
                         margin=dict(l=40,r=20,t=60,b=40))
-st.subheader("📈 Evolución de Total Provision (Últimos 5 meses)")
+
+st.subheader("📈 Evolución de Total Provision - Ultimos 5 meses")
 st.plotly_chart(fig_linea, use_container_width=True)
 
 # ===== COMPARATIVO DE RANGOS =====
