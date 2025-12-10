@@ -247,11 +247,11 @@ with col2:
 # ===== CARGA DE DATOS =====
 @st.cache_data
 def cargar_datos():
-    df = pd.read_excel("Data/Base Provision.xlsx",sheet_name="Write off")
+    df = pd.read_excel("Data/Base Provision.xlsx")
     df.columns = df.columns.str.strip()
     df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
     try:
-        df_write = pd.read_excel("Data/Base Provision.xlsx")
+        df_write = pd.read_excel("Data/Base Provision.xlsx", sheet_name="Write off")
         df_write.columns = df_write.columns.str.strip()
     except Exception:
         df_write = pd.DataFrame()
@@ -310,6 +310,7 @@ df['AñoMes_str'] = df['AñoMes'].astype(str)
 
 # ===== SIDEBAR =====
 with st.sidebar:
+    # Última fecha registrada
     ultima_fecha = df['Fecha'].max()
     año_default = ultima_fecha.year
     mes_default = ultima_fecha.month
@@ -437,7 +438,8 @@ df_tabla = df_filtrado.groupby(['Infor Code', 'Customer'], as_index=False)['Tota
 # evitar división por cero si suma = 0
 suma_total_prov = df_tabla['Total Provision'].sum()
 df_tabla['% del Total'] = (df_tabla['Total Provision'] / suma_total_prov * 100) if suma_total_prov != 0 else 0
-df_tabla = df_tabla.sort_values(by='% del Total', ascending=False).reset_index(drop=True)
+df_tabla = df_tabla.sort_values('% del Total', ascending=False)
+
 
 st.dataframe(
     df_tabla.style.format({
@@ -469,7 +471,7 @@ fig_linea.update_traces(line=dict(width=4), marker=dict(size=8),
 fig_linea.update_layout(plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
                         font=dict(color='black', size=12),
                         xaxis=dict(title_text="Mes", showgrid=False, tickfont=dict(color='black')),
-                        yaxis=dict(title_text="Total Provision ($)", tickformat=",", showgrid=True,
+                        yaxis=dict(title_text="Total Provision ($)", tickformat=",",dtick = 10000, showgrid=True,
                                    gridcolor='rgba(128,128,128,0.2)', tickfont=dict(color='black')),
                         title=dict(font=dict(color='black', size=16)),
                         margin=dict(l=40,r=20,t=60,b=40))
@@ -553,5 +555,4 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 
