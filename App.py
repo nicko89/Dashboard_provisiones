@@ -251,7 +251,7 @@ def cargar_datos():
     df.columns = df.columns.str.strip()
     df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
     try:
-        df_write = pd.read_excel("Data/Base Provision.xlsx", sheet_name="Write off")
+        df_write = pd.read_excel("Data/Base Provision.xlsx")
         df_write.columns = df_write.columns.str.strip()
     except Exception:
         df_write = pd.DataFrame()
