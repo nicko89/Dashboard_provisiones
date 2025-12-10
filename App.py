@@ -247,7 +247,7 @@ with col2:
 # ===== CARGA DE DATOS =====
 @st.cache_data
 def cargar_datos():
-    df = pd.read_excel("Data/Base Provision.xlsx")
+    df = pd.read_excel("Data/Base Provision.xlsx",sheet_name="Write off")
     df.columns = df.columns.str.strip()
     df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
     try:
@@ -310,10 +310,14 @@ df['AñoMes_str'] = df['AñoMes'].astype(str)
 
 # ===== SIDEBAR =====
 with st.sidebar:
-    st.markdown("### 🗓️ Filtros de Periodo")
-    año_sel = st.selectbox("Seleccionar año:", sorted(df['Año'].unique(), reverse=True))
+    ultima_fecha = df['Fecha'].max()
+    año_default = ultima_fecha.year
+    mes_default = ultima_fecha.month
+
+    año_sel = st.selectbox("Seleccionar año:", sorted(df['Año'].unique(), reverse=True), index=list(sorted(df['Año'].unique(), reverse=True)).index(año_default))
     meses_disponibles = sorted(df[df['Año'] == año_sel]['Mes'].unique())
-    mes_sel = st.selectbox("Seleccionar mes:", meses_disponibles)
+    mes_sel = st.selectbox("Seleccionar mes:", meses_disponibles, index=meses_disponibles.index(mes_default))
+
     
     st.markdown("---")
     st.markdown("### 🔍 Buscador")
@@ -433,6 +437,7 @@ df_tabla = df_filtrado.groupby(['Infor Code', 'Customer'], as_index=False)['Tota
 # evitar división por cero si suma = 0
 suma_total_prov = df_tabla['Total Provision'].sum()
 df_tabla['% del Total'] = (df_tabla['Total Provision'] / suma_total_prov * 100) if suma_total_prov != 0 else 0
+df_tabla = df_tabla.sort_values(by='% del Total', ascending=False).reset_index(drop=True)
 
 st.dataframe(
     df_tabla.style.format({
