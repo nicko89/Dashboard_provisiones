@@ -1,5 +1,4 @@
-# 📊 Provision Cartera USA (en desarrollo)
-
+# 📊 Provision Cartera USA Desarrollado
 Este proyecto es una aplicación interactiva desarrollada con **Streamlit**, que permite visualizar y analizar la **provisión de cartera** de clientes en EE. UU. a partir de una base de datos en Excel.  
 Actualmente, el proyecto se encuentra **en fase de desarrollo**, con funcionalidades básicas implementadas para el cálculo, visualización y comparación de provisiones entre diferentes meses.
 
@@ -70,14 +69,16 @@ provision-cartera-usa/
 
 🧠 Próximos pasos
 
-♠ Cambiar el color de la tabla para que se vea acorde en la pagina
-♠ Manejo de datos adicionales dentro de la tabla
-♠ pendiente aprobacion y mas cambios en verificacion.
+♠ validar un puente o NGROK
+♠ realizar una implementacion en Fabric para traer los datos
+♠ pasar a AZURE para hacer un tema corporativo o generar la aplicacion para su uso interno corporativo con data real. ( paso solo en codigo o en imagenes en un futuro por politicas de seguridad empresarial)
 
 📅 Estado actual
 
-Versión: 0.5 (en desarrollo)
+Versión: 1 (en pruebas)
 Última actualización: noviembre 2025
+
+
 
 🧑‍💻 Autor
 
