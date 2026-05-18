@@ -87,8 +87,3 @@ Desarrollado por: Nicolás Cabral
 Rol: Analista Financiero & Especialista en Data Analytics
 
 Contacto: 📧 nickabral@gmail.com | GitHub Profile
-
-
-### ¿Por qué este cambio eleva el nivel del repositorio?
-* **Terminología de Negocio:** Cambiar títulos simples por conceptos como *"Dashboard Ejecutivo"*, *"Motor de Cálculo Dinámico"* o *"Data Drill-Down"* demuestra de inmediato que entiendes tanto el código como las necesidades financieras de una empresa.
-* **Imágenes en Contexto:** El truco de poner las imágenes justo debajo del texto explicativo (`![Texto](Ruta)`) rompe la monotonía de la lectura y obliga al reclutador a ver el diseño de tu producto financiero de inmediato.
