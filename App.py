@@ -247,11 +247,11 @@ with col2:
 # ===== CARGA DE DATOS =====
 @st.cache_data
 def cargar_datos():
-    df = pd.read_excel("Data/Base Provision.xlsx")
+    df = pd.read_excel("Data/Base Provision (1).xlsx")
     df.columns = df.columns.str.strip()
     df['Fecha'] = pd.to_datetime(df['Fecha'], errors='coerce')
     try:
-        df_write = pd.read_excel("Data/Base Provision.xlsx", sheet_name="Write off")
+        df_write = pd.read_excel("Data/Base Provision (1).xlsx", sheet_name="Write off")
         df_write.columns = df_write.columns.str.strip()
     except Exception:
         df_write = pd.DataFrame()
